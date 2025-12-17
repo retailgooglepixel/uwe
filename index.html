@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UWE - Use What You Sell</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Konfetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
         :root {
             --google-blue: #4285F4;
@@ -21,14 +28,10 @@
             font-family: 'Google Sans', 'Roboto', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
+            user-select: none; -webkit-tap-highlight-color: transparent;
         }
 
         /* --- Header --- */
@@ -38,27 +41,13 @@
         }
         h1 { margin: 0; font-size: 1.2rem; color: var(--google-blue); font-weight: 800; text-align: left; padding-left: 10px;}
         
-        /* PULSIERENDER BATTLE BUTTON (Oben Rechts) */
         .battle-float-btn {
-            position: absolute;
-            top: 12px;
-            right: 15px;
-            background: var(--google-red);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            animation: pulse-red 2s infinite;
+            position: absolute; top: 12px; right: 15px;
+            background: var(--google-red); color: white; border: none;
+            padding: 8px 16px; border-radius: 20px; font-weight: bold;
+            font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            z-index: 100; animation: pulse-red 2s infinite;
         }
-
         @keyframes pulse-red {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.7); }
             70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(234, 67, 53, 0); }
@@ -78,7 +67,7 @@
             overflow: hidden; perspective: 1000px;
         }
 
-        /* Pixel Character */
+        /* Pixel Character (Main) */
         #pixel-pet {
             width: 130px; height: 250px; background-color: var(--pixel-body);
             border-radius: 24px; border: 5px solid #3c4043; position: relative;
@@ -109,63 +98,92 @@
             font-size: 28px; color: rgba(255,255,255,0.6); font-weight: bold;
         }
 
-        /* Accessories */
+        /* Heart Animation */
+        .heart-anim {
+            position: absolute; color: #ea4335; font-size: 2.5rem; pointer-events: none; z-index: 50;
+            animation: floatHeart 1s ease-out forwards;
+        }
+        @keyframes floatHeart { 0% { opacity: 1; transform: translateY(0) scale(0.5); } 100% { opacity: 0; transform: translateY(-100px) scale(1.5); } }
+        .spinning { animation: spin360 1s ease-in-out forwards; }
+        @keyframes spin360 { 50% { transform: scale(calc(var(--current-scale) * 1.1)) rotateY(180deg); } 100% { transform: scale(var(--current-scale)) rotateY(360deg); } }
+
+        /* Items */
         .accessory { position: absolute; transition: opacity 0.5s, transform 0.5s; opacity: 0; pointer-events: none; }
-        #toy { 
-            bottom: 20px; right: 15px; transform: rotate(-15deg) scale(0); z-index: 1;
-            font-size: 3.3rem; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
-        }
+        #toy { bottom: 20px; right: 15px; transform: rotate(-15deg) scale(0); z-index: 1; font-size: 3.3rem; }
         #toy.visible { opacity: 1; transform: rotate(-15deg) scale(1); }
-        #house { 
-            bottom: 50px; left: 5px; z-index: 0; font-size: 5.5rem; opacity: 0; transform: scale(0);
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1));
-        }
+        #house { bottom: 50px; left: 5px; z-index: 0; font-size: 5.5rem; opacity: 0; transform: scale(0); }
         #house.visible { opacity: 1; transform: scale(1); }
 
         /* --- Battle Overlay --- */
         #battle-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 100; display: none;
-            flex-direction: column; justify-content: space-between; padding: 20px; box-sizing: border-box;
+            background: #202124; z-index: 100; display: none;
+            flex-direction: column; justify-content: flex-start; padding: 20px; box-sizing: border-box;
         }
-        .battle-header { color: white; text-align: center; font-size: 1.5rem; margin-bottom: 10px; font-weight: bold; }
+        .battle-header { color: white; text-align: center; font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; margin-bottom: 5px; }
         
+        .escape-btn {
+            background: transparent; color: #9aa0a6; border: 1px solid #5f6368; 
+            padding: 5px 10px; border-radius: 15px; font-size: 0.7rem; 
+            margin: 0 auto 20px auto; display: block; cursor: pointer;
+        }
+
         .battle-arena {
-            display: flex; justify-content: space-between; align-items: flex-end; height: 40%; margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            flex-grow: 1; margin-bottom: 20px; position: relative;
         }
         
-        .fighter { width: 70px; height: 120px; border-radius: 12px; position: relative; transition: transform 0.2s; }
-        #hero-fighter { background: var(--pixel-body); border: 3px solid white; margin-left: 10px; }
-        #enemy-fighter { background: #5f6368; border: 3px solid #9aa0a6; margin-right: 10px; } 
+        .fighter-wrapper { display: flex; flex-direction: column; align-items: center; width: 45%; }
+
+        .fighter { width: 80px; height: 140px; border-radius: 16px; position: relative; transition: transform 0.2s; }
+        #hero-fighter { background: var(--pixel-body); border: 3px solid #3c4043; }
+        #enemy-fighter { background: #d0d0d0; border: 3px solid #111; } 
         
-        .hp-bar-container { width: 70px; height: 8px; background: #333; margin-top: 5px; border-radius: 4px; }
-        .hp-bar { height: 100%; background: var(--google-green); width: 100%; border-radius: 4px; transition: width 0.3s; }
-        .fighter-label { color: white; font-size: 0.7rem; text-align: center; margin-top: 5px; }
+        /* Battle Faces */
+        .battle-face { position: absolute; top: 35px; left: 0; width: 100%; text-align: center; }
+        .battle-eyes { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+        .battle-eye { width: 6px; height: 6px; background: black; border-radius: 50%; }
+        .battle-mouth { 
+            width: 16px; height: 4px; background: transparent; 
+            border-bottom: 3px solid black; border-radius: 50%; 
+            margin: 0 auto; transition: all 0.5s; 
+        }
 
-        @keyframes attackRight { 0% { transform: translateX(0); } 50% { transform: translateX(50px) rotate(10deg); } 100% { transform: translateX(0); } }
-        @keyframes attackLeft { 0% { transform: translateX(0); } 50% { transform: translateX(-50px) rotate(-10deg); } 100% { transform: translateX(0); } }
-        @keyframes hit { 0% { filter: brightness(1); transform: translateX(0); } 25% { filter: brightness(3) sepia(1) hue-rotate(-50deg); transform: translateX(-5px); } 100% { filter: brightness(1); transform: translateX(0); } }
-
-        .anim-attack-hero { animation: attackRight 0.4s ease-in; }
-        .anim-attack-enemy { animation: attackLeft 0.4s ease-in; }
-        .anim-hit { animation: hit 0.4s linear; }
-
+        /* Battery Bars Under Phone */
+        .battery-container {
+            width: 50px; height: 10px; border: 2px solid #555; border-radius: 2px;
+            margin-top: 10px; position: relative; background: #222; padding: 1px;
+        }
+        .battery-container::after {
+            content: ''; position: absolute; right: -4px; top: 2px; width: 2px; height: 6px; background: #555;
+        }
+        .battery-level { height: 100%; background: var(--google-green); width: 100%; transition: width 0.5s, background 0.3s; }
+        
+        /* Logs & Controls */
         #battle-log {
-            color: #ddd; font-family: monospace; font-size: 0.8rem; height: 80px;
-            overflow-y: auto; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px;
+            color: var(--google-yellow); font-family: 'Roboto', sans-serif; font-weight: bold; font-size: 0.9rem;
+            text-align: center; margin-bottom: 15px; height: 20px;
         }
-        #battle-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        #battle-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; padding-bottom: 20px;}
         .attack-btn {
-            background: var(--google-blue); color: white; border: none; padding: 12px;
-            border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer;
+            background: #3c4043; color: white; border: 1px solid #5f6368; padding: 15px;
+            border-radius: 12px; font-weight: bold; font-size: 0.85rem; cursor: pointer;
         }
-        .attack-btn:disabled { background: #555; opacity: 0.7; }
+        .attack-btn:active { background: #5f6368; }
 
-        /* --- Regular Controls --- */
+        /* Animations */
+        @keyframes lungeRight { 0% { transform: translateX(0); } 50% { transform: translateX(40px); } 100% { transform: translateX(0); } }
+        @keyframes lungeLeft { 0% { transform: translateX(0); } 50% { transform: translateX(-40px); } 100% { transform: translateX(0); } }
+        @keyframes shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-5px, 0); filter: sepia(1) hue-rotate(-50deg); } 75% { transform: translate(5px, 0); } 100% { transform: translate(0, 0); } }
+        
+        .anim-attack-hero { animation: lungeRight 0.3s ease-in; }
+        .anim-attack-enemy { animation: lungeLeft 0.3s ease-in; }
+        .anim-hit { animation: shake 0.4s; }
+
+        /* --- Controls & Modal --- */
         #controls {
             background: white; padding: 15px 10px; border-radius: 20px 20px 0 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: grid; 
-            grid-template-columns: repeat(3, 1fr); /* Wieder 3 Spalten */
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: grid; grid-template-columns: repeat(3, 1fr);
             gap: 8px; z-index: 30;
         }
         .btn-action {
@@ -175,7 +193,6 @@
         }
         .icon { font-size: 1.3rem; }
 
-        /* --- Modal --- */
         #modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center;
@@ -192,9 +209,29 @@
         }
         .option-btn.correct { background: var(--google-green); color: white; border-color: var(--google-green); }
         .option-btn.wrong { background: var(--google-red); color: white; border-color: var(--google-red); }
+
+        /* Login */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; justify-content: center; align-items: center; }
+        .input-group { margin-bottom: 10px; text-align: left; }
+        .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;}
+        .primary-btn { width: 100%; padding: 12px; background: var(--google-blue); color: white; border: none; border-radius: 8px; font-weight: bold; }
+
     </style>
 </head>
 <body>
+
+    <!-- Login -->
+    <div id="auth-overlay" class="overlay" style="display: flex;">
+        <div id="modal-card">
+            <h2 style="color:var(--google-blue)">UWE Anmeldung</h2>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="input-group"><label>Vorname</label><input type="text" id="fname" required></div>
+                <div class="input-group"><label>Nachname</label><input type="text" id="lname" required></div>
+                <div class="input-group"><label>Store ID</label><input type="number" id="storeid" required></div>
+                <button type="submit" class="primary-btn">Starten</button>
+            </form>
+        </div>
+    </div>
 
     <header>
         <h1>UWE</h1>
@@ -204,8 +241,8 @@
 
         <div class="stats-bar">
             <div class="stat-item">Level: <span id="level-val">1</span></div>
-            <div class="stat-item">XP: <span id="xp-val">0</span></div>
-            <div class="stat-item">Tage: <span id="streak-val">0</span></div>
+            <div class="stat-item">Laune: <span id="mood-val">😐</span></div>
+            <div class="stat-item">Streak: <span id="streak-val">0</span></div>
         </div>
     </header>
 
@@ -215,34 +252,45 @@
 
         <div id="pixel-pet" class="neutral" onclick="petInteraction()">
             <div class="visor">
-                <div class="lens"></div>
-                <div class="lens"></div>
+                <div class="lens"></div><div class="lens"></div>
                 <div class="lens" id="tele-lens" style="display:none;"></div>
             </div>
             <div class="mouth"></div>
             <div class="g-logo">G</div>
         </div>
         
+        <!-- BATTLE OVERLAY -->
         <div id="battle-overlay">
-            <div class="battle-header">VS Modus</div>
+            <div class="battle-header">Feature Fight!</div>
+            <button class="escape-btn" onclick="endBattle(false)">Flucht</button>
             
             <div class="battle-arena">
-                <div>
-                    <div id="hero-fighter" class="fighter"></div>
-                    <div class="hp-bar-container"><div id="hero-hp" class="hp-bar"></div></div>
-                    <div class="fighter-label">Mein Pixel</div>
+                <!-- HERO -->
+                <div class="fighter-wrapper">
+                    <div id="hero-fighter" class="fighter">
+                        <div class="visor" style="transform: scale(0.6); top:15px; width:100%; left:0;"><div class="lens"></div><div class="lens"></div></div>
+                        <div class="battle-face"><div class="battle-mouth" id="hero-mouth"></div></div>
+                    </div>
+                    <div class="battery-container"><div id="hero-hp" class="battery-level"></div></div>
                 </div>
-                <div>
-                    <div id="enemy-fighter" class="fighter"></div>
-                    <div class="hp-bar-container"><div id="enemy-hp" class="hp-bar"></div></div>
-                    <div class="fighter-label">Konkurrenz</div>
+
+                <!-- ENEMY -->
+                <div class="fighter-wrapper">
+                    <div id="enemy-fighter" class="fighter">
+                        <div class="battle-face">
+                            <div class="battle-eyes"><div class="battle-eye"></div><div class="battle-eye"></div></div>
+                            <div class="battle-mouth" id="enemy-mouth"></div>
+                        </div>
+                    </div>
+                    <div class="battery-container"><div id="enemy-hp" class="battery-level"></div></div>
                 </div>
             </div>
 
-            <div id="battle-log">Kampf bereit...</div>
+            <div id="battle-log">Wähle dein Feature!</div>
             
             <div id="battle-actions">
-                </div>
+                <!-- Buttons generated by JS -->
+            </div>
         </div>
     </div>
 
@@ -269,33 +317,39 @@
     </div>
 
     <script>
+        // --- Firebase Config ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyD9Ha0JayocUGshcgMtPpkaaWFQoX6R8_s",
+          authDomain: "uwys-pixel-app.firebaseapp.com",
+          projectId: "uwys-pixel-app",
+          storageBucket: "uwys-pixel-app.firebasestorage.app",
+          messagingSenderId: "600178641202",
+          appId: "1:600178641202:web:c8474cb7a83ff1f517af2b",
+          measurementId: "G-26JT9BRQ8K"
+        };
+
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined') {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+            }
+        } catch (e) { console.error(e); }
+
         // --- Game State ---
+        let user = null;
         let state = {
-            happiness: 50, xp: 0, level: 1, streak: 0, lastActivityDate: null, 
+            happiness: 50, xp: 0, level: 1, streak: 0, 
             inventory: { toy: false, house: false }
         };
 
-        // --- Battle Data ---
-        const heroAttacks = [
-            { name: "Gemini Live", dmg: 35, text: "Gemini analysiert die Schwachstelle!" },
-            { name: "Nachtsicht", dmg: 30, text: "Pixel sieht alles im Dunkeln!" },
-            { name: "Titan M2", dmg: 20, text: "Angriff sicher abgewehrt!" },
-            { name: "7 Jahre Updates", dmg: 40, text: "Langzeitschaden beim Gegner!" },
-            { name: "Tensor G5", dmg: 35, text: "KI-Power Überlastung!" },
-            { name: "Super Actua", dmg: 25, text: "Gegner geblendet!" }
+        // --- Data ---
+        const battleFeatures = [
+            "Magic Eraser", "Best Take", "Night Sight", "Super Res Zoom", 
+            "Gemini Live", "Audio Eraser", "Circle to Search", "Call Screen",
+            "Live Translate", "Real Tone", "Astrophotography", "Video Boost"
         ];
 
-        const enemyAttacks = [
-            { name: "Bloatware", dmg: 10, text: "Gegner installiert unnötige Apps..." },
-            { name: "Kein Update", dmg: 15, text: "Sicherheitslücke ausgenutzt!" },
-            { name: "Dunkles Display", dmg: 5, text: "Man sieht kaum was..." },
-            { name: "Langsamer Chip", dmg: 8, text: "Gegner laggt..." },
-            { name: "Plastik-Gehäuse", dmg: 5, text: "Fühlt sich billig an." }
-        ];
-
-        let battleState = { heroHP: 100, enemyHP: 100, active: false };
-
-        // --- Questions ---
         const questions = {
             feed: [ 
                 { q: "Wie lange hält der Akku im Extrem-Energiesparmodus?", options: ["48h", "72h", "100h"], a: 2 },
@@ -324,28 +378,46 @@
         };
 
         // --- Init ---
-        window.onload = function() { init(); };
+        window.onload = function() { checkAuth(); updateVisuals(); };
 
-        function init() {
-            loadState();
-            updateVisuals();
+        function checkAuth() {
+            const localUser = localStorage.getItem('uweStateUser');
+            if (localUser) {
+                user = JSON.parse(localUser);
+                document.getElementById('auth-overlay').style.display = 'none';
+                loadState();
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const fname = document.getElementById('fname').value;
+            const lname = document.getElementById('lname').value;
+            const storeid = document.getElementById('storeid').value;
+            user = { fname, lname, storeid };
+            localStorage.setItem('uweStateUser', JSON.stringify(user));
+            document.getElementById('auth-overlay').style.display = 'none';
+            if(db) db.collection('users').doc(`${storeid}_${lname}`).set(user);
         }
 
         function loadState() {
-            try {
-                const saved = localStorage.getItem('uweStateV2');
-                if (saved) state = JSON.parse(saved);
-            } catch(e) {}
+            const saved = localStorage.getItem('uweStateV3');
+            if (saved) state = JSON.parse(saved);
         }
-
         function saveState() {
-            localStorage.setItem('uweStateV2', JSON.stringify(state));
+            localStorage.setItem('uweStateV3', JSON.stringify(state));
+            if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state});
         }
 
-        // --- Visuals ---
+        // --- Visuals & Interaction ---
         function updateVisuals() {
-            const pet = document.getElementById('pixel-pet');
-            document.getElementById('xp-val').innerText = state.xp;
+            // Mood Emojis
+            let moodEmoji = "😐";
+            if (state.happiness >= 80) moodEmoji = "🤩";
+            else if (state.happiness >= 50) moodEmoji = "😊";
+            else if (state.happiness <= 20) moodEmoji = "😭";
+            
+            document.getElementById('mood-val').innerText = moodEmoji;
             document.getElementById('streak-val').innerText = state.streak;
 
             let scaleVal = 0.85;
@@ -358,32 +430,40 @@
             document.getElementById('tele-lens').style.display = state.level > 1 ? 'block' : 'none';
 
             // Items
-            const toy = document.getElementById('toy');
-            const house = document.getElementById('house');
-            if (state.inventory.toy) toy.classList.add('visible');
-            if (state.inventory.house) house.classList.add('visible');
+            if (state.inventory.toy) document.getElementById('toy').classList.add('visible');
+            if (state.inventory.house) document.getElementById('house').classList.add('visible');
 
-            // Mood
+            // Pet Color
+            const pet = document.getElementById('pixel-pet');
             if (!pet.classList.contains('spinning')) {
                 pet.classList.remove('happy', 'sad', 'neutral');
                 let bodyColor = "#6996D3"; 
                 if (state.happiness >= 60) { pet.classList.add('happy'); bodyColor = "#c3ecd2"; }
                 else if (state.happiness <= 30) { pet.classList.add('sad'); bodyColor = "#9aa0a6"; }
-                else { pet.classList.add('neutral'); }
-                
                 document.documentElement.style.setProperty('--pixel-body', bodyColor);
-                
-                const hero = document.getElementById('hero-fighter');
-                if(hero) hero.style.background = bodyColor;
             }
         }
 
-        // --- Main Functions ---
         function petInteraction() {
             const pet = document.getElementById('pixel-pet');
             if (pet.classList.contains('spinning')) return;
 
-            pet.classList.add('spinning', 'happy');
+            // Spin Animation
+            pet.classList.add('spinning');
+            
+            // Heart Animation
+            const container = document.getElementById('pet-container');
+            for(let i=0; i<3; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-anim';
+                heart.innerText = '❤️';
+                heart.style.left = (45 + Math.random()*10) + '%';
+                heart.style.top = '40%';
+                heart.style.animationDelay = (i * 0.2) + 's';
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), 1200);
+            }
+
             if (state.happiness < 100) state.happiness += 5;
             saveState();
             
@@ -393,6 +473,7 @@
             }, 1000);
         }
 
+        // --- Tasks ---
         function startDailyTask(category) {
             const catQuestions = questions[category];
             const qObj = catQuestions[Math.floor(Math.random() * catQuestions.length)];
@@ -411,49 +492,42 @@
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
                 btn.innerText = opt;
-                btn.onclick = () => checkAnswer(index, qObj.a, btn);
+                btn.onclick = () => checkAnswer(index, qObj.a, btn, category);
                 optCont.appendChild(btn);
             });
             modal.style.display = 'flex';
         }
 
-        function checkAnswer(selectedIndex, correctIndex, btnElement) {
+        function checkAnswer(selectedIndex, correctIndex, btnElement, category) {
             const allBtns = document.querySelectorAll('.option-btn');
             allBtns.forEach(b => b.disabled = true);
             const feedback = document.getElementById('feedback-msg');
 
             if (selectedIndex === correctIndex) {
                 btnElement.classList.add('correct');
-                feedback.innerText = "Richtig! +30 XP";
+                feedback.innerText = "Richtig! Laune steigt!";
                 feedback.style.color = "var(--google-green)";
-                rewardUser(true);
+                rewardUser(true, category);
             } else {
                 btnElement.classList.add('wrong');
                 allBtns[correctIndex].classList.add('correct');
-                feedback.innerText = "Falsch.";
+                feedback.innerText = "Falsch. Laune sinkt.";
                 feedback.style.color = "var(--google-red)";
-                rewardUser(false);
+                rewardUser(false, category);
             }
         }
 
-        function rewardUser(success) {
+        function rewardUser(success, category) {
             if (success) {
                 state.happiness = Math.min(100, state.happiness + 20);
-                state.xp += 30; 
-                state.streak += 1; 
+                state.xp += 30; state.streak += 1; 
 
-                if (state.xp >= 60 && state.level < 2) {
-                    state.level = 2; showToast("🎉 LEVEL UP! Pixel 10 Pro!");
-                } else if (state.xp >= 120 && state.level < 3) {
-                    state.level = 3; showToast("🚀 LEVEL UP! Pixel 10 Pro XL!");
-                }
+                if (state.xp >= 60 && state.level < 2) { state.level = 2; showToast("🎉 LEVEL UP! Pixel 10 Pro!"); }
+                else if (state.xp >= 120 && state.level < 3) { state.level = 3; showToast("🚀 LEVEL UP! Pixel 10 Pro XL!"); }
 
-                if (state.level >= 2 && !state.inventory.toy) {
-                    state.inventory.toy = true; showToast("🧸 Spielzeug erhalten!");
-                }
-                if (state.level >= 3 && !state.inventory.house) {
-                    state.inventory.house = true; showToast("🏠 Hundehütte erhalten!");
-                }
+                // Rewards
+                if (state.level >= 2 && !state.inventory.toy) { state.inventory.toy = true; }
+                if (state.level >= 3 && !state.inventory.house) { state.inventory.house = true; }
             } else {
                 state.happiness = Math.max(0, state.happiness - 10);
             }
@@ -471,55 +545,66 @@
         }
 
         // --- Battle System ---
+        let battleState = { heroHP: 100, enemyHP: 100, active: false };
+
         function initBattle() {
             battleState.heroHP = 100;
             battleState.enemyHP = 100;
             battleState.active = true;
             
-            const shuffled = heroAttacks.sort(() => 0.5 - Math.random());
-            const currentAttacks = shuffled.slice(0, 3);
-            
-            const btnContainer = document.getElementById('battle-actions');
-            btnContainer.innerHTML = ''; 
-            
-            currentAttacks.forEach((atk) => {
-                const btn = document.createElement('button');
-                btn.className = 'attack-btn';
-                btn.innerText = atk.name;
-                btn.onclick = () => performTurn(atk);
-                btnContainer.appendChild(btn);
-            });
-            
-            const fleeBtn = document.createElement('button');
-            fleeBtn.className = 'attack-btn';
-            fleeBtn.style.background = '#555';
-            fleeBtn.innerText = "Flucht";
-            fleeBtn.onclick = () => endBattle(false);
-            btnContainer.appendChild(fleeBtn);
-
             updateBattleUI();
-            logBattle("Ein wildes Phone X erscheint!");
+            generateAttackButtons();
+            
+            document.getElementById('battle-log').innerText = "Feature Fight beginnt!";
             document.getElementById('battle-overlay').style.display = 'flex';
         }
 
-        function updateBattleUI() {
-            document.getElementById('hero-hp').style.width = battleState.heroHP + "%";
-            document.getElementById('enemy-hp').style.width = battleState.enemyHP + "%";
+        function generateAttackButtons() {
+            const btnContainer = document.getElementById('battle-actions');
+            btnContainer.innerHTML = ''; 
             
-            const heroBar = document.getElementById('hero-hp');
-            heroBar.style.background = battleState.heroHP > 30 ? 'var(--google-green)' : 'var(--google-red)';
+            // Randomize 4 Features
+            const shuffled = battleFeatures.sort(() => 0.5 - Math.random());
+            const currentAttacks = shuffled.slice(0, 4);
+
+            currentAttacks.forEach((name) => {
+                const btn = document.createElement('button');
+                btn.className = 'attack-btn';
+                btn.innerText = name;
+                btn.onclick = () => performTurn(name);
+                btnContainer.appendChild(btn);
+            });
         }
 
-        function logBattle(text) {
-            const log = document.getElementById('battle-log');
-            log.innerText = text + "\n" + log.innerText;
+        function updateBattleUI() {
+            // Batteries
+            updateBattery('hero-hp', battleState.heroHP);
+            updateBattery('enemy-hp', battleState.enemyHP);
+            
+            // Mouth Expressions based on HP
+            updateFace('hero-mouth', battleState.heroHP);
+            updateFace('enemy-mouth', battleState.enemyHP);
         }
 
-        function performTurn(playerMove) {
+        function updateBattery(id, hp) {
+            const bar = document.getElementById(id);
+            bar.style.width = hp + "%";
+            if(hp > 50) bar.style.background = "var(--google-green)";
+            else if(hp > 20) bar.style.background = "var(--google-yellow)";
+            else bar.style.background = "var(--google-red)";
+        }
+
+        function updateFace(id, hp) {
+            const mouth = document.getElementById(id);
+            if(hp > 70) { mouth.style.borderRadius = "0 0 50% 50%"; mouth.style.borderBottom = "3px solid black"; mouth.style.borderTop = "none"; } // Happy
+            else if(hp > 30) { mouth.style.borderRadius = "0"; mouth.style.borderBottom = "3px solid black"; mouth.style.borderTop = "none"; } // Neutral
+            else { mouth.style.borderRadius = "50% 50% 0 0"; mouth.style.borderTop = "3px solid black"; mouth.style.borderBottom = "none"; } // Sad
+        }
+
+        function performTurn(featureName) {
             if (!battleState.active) return;
             
-            logBattle(`> Pixel nutzt ${playerMove.name}!`);
-            logBattle(playerMove.text);
+            document.getElementById('battle-log').innerText = `Pixel nutzt ${featureName}!`;
             
             const heroDiv = document.getElementById('hero-fighter');
             const enemyDiv = document.getElementById('enemy-fighter');
@@ -527,30 +612,32 @@
             heroDiv.classList.add('anim-attack-hero');
             
             setTimeout(() => {
+                heroDiv.classList.remove('anim-attack-hero');
                 enemyDiv.classList.add('anim-hit');
-                battleState.enemyHP = Math.max(0, battleState.enemyHP - playerMove.dmg);
+                
+                // Damage
+                const dmg = Math.floor(Math.random() * 20) + 15;
+                battleState.enemyHP = Math.max(0, battleState.enemyHP - dmg);
                 updateBattleUI();
 
                 setTimeout(() => {
-                    heroDiv.classList.remove('anim-attack-hero');
                     enemyDiv.classList.remove('anim-hit');
 
                     if (battleState.enemyHP <= 0) {
                         endBattle(true);
                     } else {
+                        // Change buttons for next turn immediately to show dynamic nature
+                        generateAttackButtons();
                         disableBattleButtons(true);
                         setTimeout(enemyTurn, 1000);
                     }
-                }, 400);
+                }, 300);
             }, 300);
         }
 
         function enemyTurn() {
             if (!battleState.active) return;
-
-            const badMove = enemyAttacks[Math.floor(Math.random() * enemyAttacks.length)];
-            logBattle(`> Phone X nutzt ${badMove.name}...`);
-            logBattle(badMove.text);
+            document.getElementById('battle-log').innerText = "Gegner kontert...";
             
             const heroDiv = document.getElementById('hero-fighter');
             const enemyDiv = document.getElementById('enemy-fighter');
@@ -558,21 +645,23 @@
             enemyDiv.classList.add('anim-attack-enemy');
 
             setTimeout(() => {
+                enemyDiv.classList.remove('anim-attack-enemy');
                 heroDiv.classList.add('anim-hit');
-                battleState.heroHP = Math.max(0, battleState.heroHP - badMove.dmg);
+                
+                const dmg = Math.floor(Math.random() * 15) + 5;
+                battleState.heroHP = Math.max(0, battleState.heroHP - dmg);
                 updateBattleUI();
 
                 setTimeout(() => {
-                    enemyDiv.classList.remove('anim-attack-enemy');
                     heroDiv.classList.remove('anim-hit');
                     
                     if (battleState.heroHP <= 0) {
-                        logBattle("Pixel wurde besiegt...");
-                        setTimeout(() => endBattle(false), 1500);
+                        endBattle(false);
                     } else {
                         disableBattleButtons(false);
+                        document.getElementById('battle-log').innerText = "Wähle dein Feature!";
                     }
-                }, 400);
+                }, 300);
             }, 300);
         }
 
@@ -584,13 +673,16 @@
         function endBattle(won) {
             battleState.active = false;
             if (won) {
-                showToast("🏆 Sieg! Gegner hatte keine Chance!");
+                showToast("🏆 Sieg! Pixel dominiert!");
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                state.happiness = 100;
                 rewardUser(true);
             } else {
-                showToast("Niederlage... Lern mehr Features!");
+                showToast("Niederlage... Akku leer.");
             }
             setTimeout(() => {
                 document.getElementById('battle-overlay').style.display = 'none';
+                updateVisuals();
             }, 1500);
         }
     </script>
