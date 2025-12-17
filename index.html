@@ -37,7 +37,7 @@
         /* --- Header --- */
         header {
             background: white; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center; z-index: 10; position: relative;
+            text-align: center; z-index: 50; position: relative;
         }
         h1 { margin: 0; font-size: 1.2rem; color: var(--google-blue); font-weight: 800; text-align: left; padding-left: 10px;}
         
@@ -74,11 +74,13 @@
             overflow: hidden; perspective: 1000px;
         }
 
+        /* Pixel Character */
         #pixel-pet {
             width: 130px; height: 250px; background-color: var(--pixel-body);
             border-radius: 24px; border: 5px solid #3c4043; position: relative;
             transform: scale(var(--current-scale)); box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            z-index: 10; cursor: pointer; transform-style: preserve-3d; 
+            z-index: 30; /* Höher als Toys! */
+            cursor: pointer; transform-style: preserve-3d; 
             transition: background-color 0.5s, transform 0.5s, opacity 0.5s; 
             transform-origin: bottom center;
         }
@@ -107,47 +109,49 @@
         }
 
         .heart-anim {
-            position: absolute; color: #ea4335; font-size: 2.5rem; pointer-events: none; z-index: 50;
-            animation: floatHeart 1s ease-out forwards;
+            position: absolute; color: #ea4335; font-size: 3rem; pointer-events: none; z-index: 100;
+            animation: floatHeart 1.5s ease-out forwards;
         }
-        @keyframes floatHeart { 0% { opacity: 1; transform: translateY(0) scale(0.5); } 100% { opacity: 0; transform: translateY(-100px) scale(1.5); } }
+        @keyframes floatHeart { 0% { opacity: 1; transform: translateY(0) scale(0.5); } 100% { opacity: 0; transform: translateY(-150px) scale(1.5); } }
+        
         .spinning { animation: spin360 1s ease-in-out forwards; }
         @keyframes spin360 { 50% { transform: scale(calc(var(--current-scale) * 1.1)) rotateY(180deg); } 100% { transform: scale(var(--current-scale)) rotateY(360deg); } }
 
-        /* Age Items */
+        /* Age Items (Inside Pixel) */
         .age-item { position: absolute; pointer-events: none; transition: all 0.5s; display: none; z-index: 20; }
         #age-baby { top: 95px; left: 50%; transform: translateX(-50%); font-size: 2rem; }
         #age-teen { bottom: -10px; right: -40px; font-size: 4rem; transform: rotate(-10deg); z-index: 5; }
         #age-adult { bottom: 0; left: -30px; font-size: 3.5rem; z-index: 20; }
 
         /* Reward Items - Interaktiv */
-        .reward-item { position: absolute; transition: all 0.5s; opacity: 0; cursor: pointer; font-size: 3rem; pointer-events: none;}
-        .reward-item.visible { opacity: 1; pointer-events: auto; }
+        .reward-item { position: absolute; transition: all 0.5s; opacity: 0; cursor: pointer; font-size: 3rem; z-index: 20; }
+        .reward-item.visible { opacity: 1; }
         
-        #toy { bottom: 40px; right: 20px; z-index: 1; transform: scale(0.6) rotate(-15deg); }
-        #house { bottom: 60px; left: 10px; z-index: 0; font-size: 5rem; transform: scale(0.6); }
+        #toy { bottom: 40px; right: 20px; transform: scale(0.6) rotate(-15deg); }
+        #house { bottom: 60px; left: 10px; z-index: 10; font-size: 5rem; transform: scale(0.6); }
 
-        /* Animations für Interaktionen */
-        .toy-cuddle { animation: cuddle 2s ease-in-out; }
+        /* Kuschel Animation */
+        .toy-cuddle { animation: cuddle 2.5s ease-in-out; z-index: 40 !important; }
         @keyframes cuddle { 
             0% { transform: scale(0.6) rotate(-15deg) translate(0, 0); }
-            50% { transform: scale(0.8) rotate(0deg) translate(-80px, -50px); } 
+            40% { transform: scale(0.9) rotate(0deg) translate(-150px, -80px); } 
+            60% { transform: scale(0.9) rotate(0deg) translate(-150px, -80px); }
             100% { transform: scale(0.6) rotate(-15deg) translate(0, 0); }
         }
 
         .enter-house { animation: enterHouse 3s forwards; }
         @keyframes enterHouse {
             0% { transform: scale(var(--current-scale)); opacity: 1; }
-            30% { transform: scale(0.3) translate(-150px, 100px); opacity: 0.8; }
-            50% { transform: scale(0.2) translate(-150px, 100px); opacity: 0; }
-            80% { transform: scale(0.2) translate(-150px, 100px); opacity: 0; }
+            30% { transform: scale(0.3) translate(-180px, 100px); opacity: 0.8; }
+            50% { transform: scale(0.2) translate(-180px, 100px); opacity: 0; }
+            80% { transform: scale(0.2) translate(-180px, 100px); opacity: 0; }
             100% { transform: scale(var(--current-scale)); opacity: 1; }
         }
 
         /* --- Battle Overlay --- */
         #battle-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #202124; z-index: 100; display: none;
+            background: #202124; z-index: 200; display: none;
             flex-direction: column; justify-content: flex-start; padding: 20px; box-sizing: border-box;
         }
         .battle-header { color: white; text-align: center; font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; margin-bottom: 5px; }
@@ -167,7 +171,6 @@
         
         .fighter-wrapper { display: flex; flex-direction: column; align-items: center; width: 40%; position: relative; }
         
-        /* Realistic Fighters with Arms */
         .fighter { 
             width: 80px; height: 150px; border-radius: 18px; position: relative; 
             transition: transform 0.2s; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
@@ -181,32 +184,30 @@
             border: 4px solid #111; 
         }
 
-        /* ARMS */
         .arm {
             width: 20px; height: 50px; position: absolute; top: 50px; border-radius: 10px;
             transform-origin: top center; transition: transform 0.2s;
         }
         #hero-fighter .arm.left { background: var(--pixel-body); left: -15px; border: 2px solid #3c4043; }
         #hero-fighter .arm.right { background: var(--pixel-body); right: -15px; border: 2px solid #3c4043; }
-        
         #enemy-fighter .arm.left { background: #d0d0d0; left: -15px; border: 2px solid #111; }
         #enemy-fighter .arm.right { background: #d0d0d0; right: -15px; border: 2px solid #111; }
 
-        /* Animation Classes */
         .throw-anim .arm.right { animation: throwArm 0.5s; }
         @keyframes throwArm { 0% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } 100% { transform: rotate(0deg); } }
 
-        /* Faces */
+        /* Battle Faces & Mouths */
         .battle-face { position: absolute; top: 35px; left: 0; width: 100%; text-align: center; }
         .battle-eyes { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
         .battle-eye { width: 6px; height: 6px; background: black; border-radius: 50%; }
+        
         .battle-mouth { 
-            width: 16px; height: 4px; background: transparent; 
-            border-bottom: 3px solid black; border-radius: 50%; 
-            margin: 0 auto; transition: all 0.3s; 
+            width: 20px; height: 10px; background: transparent; margin: 0 auto; 
+            transition: all 0.3s;
         }
+        #hero-mouth { border-bottom: 3px solid black; border-radius: 0 0 50% 50%; }
+        #enemy-mouth { height: 0; border-bottom: 3px solid black; border-radius: 0; margin-top: 5px; }
 
-        /* Projectiles */
         .projectile {
             position: absolute; font-size: 2rem; z-index: 200; pointer-events: none;
             display: none;
@@ -217,7 +218,6 @@
         }
         @keyframes boom { 0% { transform: scale(0); opacity: 1; } 50% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
 
-        /* Battery */
         .battery-container {
             width: 60px; height: 12px; border: 2px solid #555; border-radius: 3px;
             margin-top: 15px; position: relative; background: #222; padding: 2px;
@@ -227,11 +227,10 @@
         }
         .battery-level { height: 100%; background: var(--google-green); width: 100%; transition: width 0.5s, background 0.3s; }
         
-        /* Expanded Log */
         #battle-log-container {
             background: #1e1e1e; border: 1px solid #444; border-radius: 12px;
-            padding: 15px; margin-bottom: 10px; height: 120px; /* 30% größer */
-            overflow-y: auto; display: flex; flex-direction: column-reverse; /* Newest at bottom visually if handled right, or normal scroll */
+            padding: 15px; margin-bottom: 10px; height: 120px; 
+            overflow-y: auto; display: flex; flex-direction: column-reverse; 
         }
         #battle-log {
             color: #eee; font-family: 'Roboto Mono', monospace; font-size: 0.85rem;
@@ -318,7 +317,11 @@
             </div>
             <div class="info-text">
                 <strong>Anleitung:</strong><br>
-                Pflege und kümmere dich jeden Tag um dein UWE...
+                Pflege und kümmere dich jeden Tag um dein UWE - unseren Wissens Experten. 
+                Erledige jeden Tag mindestens einmal die sechs Aufgaben, welche du im unteren Feld findest: 
+                Gassi gehen, Füttern, etc.<br><br>
+                Besiege das Phone X im Battle und sichere dir extra Punkte. 
+                Details zur Gewinnauslosung folgen.
             </div>
             <button onclick="closeFeedback()" style="margin-top:15px; border:none; background:none; text-decoration:underline; color:#777; cursor:pointer;">Schließen</button>
         </div>
@@ -342,7 +345,7 @@
         <div id="house" class="reward-item" onclick="interactHouse()">🏠</div>
         <div id="toy" class="reward-item" onclick="interactToy()">🧸</div> 
 
-        <!-- Pixel Character -->
+        <!-- Pixel Character (Z-Index Fix) -->
         <div id="pixel-pet" class="neutral" onclick="petInteraction()">
             <div class="visor">
                 <div class="lens"></div><div class="lens"></div>
@@ -465,19 +468,38 @@
             "Phone X ist verwirrt...", "Phone X Akku fast leer..."
         ];
 
+        // --- HIER SIND DIE GANZEN SÄTZE ---
         const questions = {
-            feed: [ { q: "Akku im Extrem-Energiesparmodus?", options: ["48h", "72h", "100h"], a: 2 }, { q: "Schnelleres Laden?", options: ["MagSafe", "Pixelsnap Qi2", "SuperVOOC"], a: 1 } ],
-            walk: [ { q: "Maximaler Zoom Pixel 10 Pro?", options: ["30x", "50x", "100x"], a: 2 }, { q: "Hilfe für Winkel?", options: ["Kamera-Coach", "Winkel-Meister", "Foto-Guide"], a: 0 } ],
-            pet: [ { q: "Display Name?", options: ["OLED Pro", "Super Actua", "Retina XDR"], a: 1 }, { q: "Update Garantie?", options: ["3 J", "5 J", "7 J"], a: 2 } ],
-            train: [ { q: "Video-Gen in Gemini?", options: ["Sora", "Veo 3", "CineMake"], a: 1 }, { q: "Live Unterhaltung?", options: ["Gemini Voice", "Gemini Live", "Talk"], a: 1 } ],
-            play: [ { q: "Gruppenfoto Feature?", options: ["Selbstauslöser", "Mich hinzufügen", "Magic Eraser"], a: 1 }, { q: "Max Personen?", options: ["5", "10", "20"], a: 2 } ],
-            clean: [ { q: "Sicherheitschip?", options: ["Knox", "Titan M2", "Secure Enclave"], a: 1 }, { q: "Anrufschutz?", options: ["Spam-Block", "Betrugserkennung", "Shield"], a: 1 } ]
+            feed: [ 
+                { q: "Wie lange hält der Akku der Pixel 9 Serie im Extrem-Energiesparmodus?", options: ["Bis zu 48h", "Bis zu 72h", "Bis zu 100h"], a: 2 },
+                { q: "Welche neue Ladetechnologie unterstützt das Pixel 10 für schnelleres Laden?", options: ["MagSafe", "Pixelsnap mit Qi2", "SuperVOOC"], a: 1 }
+            ],
+            walk: [ 
+                { q: "Wie weit kannst du mit dem Pixel 10 Pro / XL maximal zoomen?", options: ["30-fach", "50-fach", "100-fach Pro-Res"], a: 2 },
+                { q: "Welche Funktion hilft dir, den perfekten Winkel für ein Foto zu finden?", options: ["Kamera-Coach", "Winkel-Meister", "Foto-Guide"], a: 0 }
+            ],
+            pet: [
+                 { q: "Wie heißt das besonders helle Display des Pixel 10 Pro / XL?", options: ["OLED Pro", "Super Actua", "Retina XDR"], a: 1 },
+                 { q: "Über wie viele Jahre garantiert Google Updates für das Pixel?", options: ["3 Jahre", "5 Jahre", "7 Jahre"], a: 2 }
+            ],
+            train: [ 
+                { q: "Wie heißt die neue Video-Generierung direkt in Gemini?", options: ["Sora", "Veo 3", "CineMake"], a: 1 },
+                { q: "Mit welcher Funktion kannst du dich live und flüssig mit Gemini unterhalten?", options: ["Gemini Voice", "Gemini Live", "Google Talk"], a: 1 }
+            ],
+            play: [ 
+                { q: "Du willst auf einem Gruppenfoto auch dabei sein. Welche Funktion nutzt du?", options: ["Selbstauslöser", "Mich hinzufügen", "Magic Eraser"], a: 1 },
+                { q: "Wie viele Personen unterstützt 'Mich hinzufügen' maximal?", options: ["5", "10", "20"], a: 2 }
+            ],
+            clean: [ 
+                { q: "Welcher Sicherheitschip schützt deine sensiblen Daten im Pixel?", options: ["Knox", "Titan M2", "Secure Enclave"], a: 1 },
+                { q: "Welche Funktion warnt dich automatisch vor gefährlichen Anrufen?", options: ["Spam-Blocker", "Betrugserkennung", "Call Shield"], a: 1 }
+            ]
         };
 
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV8');
+            const localUser = localStorage.getItem('uweStateUserV10');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -490,7 +512,7 @@
             const lname = document.getElementById('lname').value;
             const storeid = document.getElementById('storeid').value;
             user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV8', JSON.stringify(user));
+            localStorage.setItem('uweStateUserV10', JSON.stringify(user));
             document.getElementById('auth-overlay').style.display = 'none';
             state.joinedDate = new Date().getTime();
             saveState();
@@ -498,7 +520,7 @@
             updateVisuals();
         }
         function loadState() {
-            const saved = localStorage.getItem('uweStateV8');
+            const saved = localStorage.getItem('uweStateV10');
             if (saved) state = JSON.parse(saved);
             const today = new Date().toISOString().slice(0,10);
             if (state.lastPlayedDate !== today) {
@@ -509,7 +531,7 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateV8', JSON.stringify(state));
+            localStorage.setItem('uweStateV10', JSON.stringify(state));
             if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state});
         }
 
@@ -521,10 +543,21 @@
         function interactToy() {
             const toy = document.getElementById('toy');
             toy.classList.add('toy-cuddle');
-            // Herzen fliegen lassen
+            
+            // HERZ REGEN FÜR TEDDY KUSCHELN
+            const petContainer = document.getElementById('pet-container');
+            for(let i=0; i<5; i++) {
+                const h = document.createElement('div'); h.className='heart-anim'; h.innerText='❤️';
+                h.style.left = (40 + Math.random()*20) + '%';
+                h.style.top = '50%';
+                h.style.animationDelay = (i*0.3)+'s';
+                petContainer.appendChild(h);
+                setTimeout(()=>h.remove(), 2000);
+            }
+
             const pet = document.getElementById('pixel-pet');
-            pet.classList.add('happy');
-            setTimeout(() => { toy.classList.remove('toy-cuddle'); pet.classList.remove('happy'); }, 2000);
+            pet.classList.add('happy'); // Optional class if needed for CSS triggers
+            setTimeout(() => { toy.classList.remove('toy-cuddle'); pet.classList.remove('happy'); }, 2500);
         }
 
         function interactHouse() {
@@ -562,12 +595,35 @@
 
             if(state.inventory.toy) document.getElementById('toy').classList.add('visible');
             if(state.inventory.house) document.getElementById('house').classList.add('visible');
+
+            const pet = document.getElementById('pixel-pet');
+            if (!pet.classList.contains('spinning')) {
+                pet.classList.remove('happy', 'sad', 'neutral');
+                let bodyColor = "#6996D3"; 
+                if (state.happiness >= 60) { pet.classList.add('happy'); bodyColor = "#c3ecd2"; }
+                else if (state.happiness <= 30) { pet.classList.add('sad'); bodyColor = "#9aa0a6"; }
+                document.documentElement.style.setProperty('--pixel-body', bodyColor);
+            }
         }
 
         function petInteraction() {
             const pet = document.getElementById('pixel-pet');
             if (pet.classList.contains('spinning')) return;
             pet.classList.add('spinning');
+            
+            // Standard Herz Animation
+            const container = document.getElementById('pet-container');
+            for(let i=0; i<3; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-anim';
+                heart.innerText = '❤️';
+                heart.style.left = (45 + Math.random()*10) + '%';
+                heart.style.top = '40%';
+                heart.style.animationDelay = (i * 0.2) + 's';
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), 1500);
+            }
+
             if (state.happiness < 100) state.happiness += 5;
             saveState();
             setTimeout(() => { pet.classList.remove('spinning'); updateVisuals(); }, 1000);
@@ -638,23 +694,32 @@
             document.getElementById('hero-hp').style.width = battleState.heroHP + '%';
             document.getElementById('enemy-hp').style.width = battleState.enemyHP + '%';
             
-            // Mouth changes
             const heroMouth = document.getElementById('hero-mouth');
             const enemyMouth = document.getElementById('enemy-mouth');
             
-            // Hero Smiles when winning
+            // Hero Smiles when winning, otherwise neutral line
             if(battleState.enemyHP < battleState.heroHP) {
+                // Smile
+                heroMouth.style.height = "10px";
                 heroMouth.style.borderRadius = "0 0 50% 50%";
                 heroMouth.style.borderBottom = "3px solid black";
+                heroMouth.style.borderTop = "none";
             } else {
-                heroMouth.style.borderRadius = "0"; // Neutral
+                // Neutral
+                heroMouth.style.height = "0";
+                heroMouth.style.borderRadius = "0";
+                heroMouth.style.borderBottom = "3px solid black";
             }
             
-            // Enemy Sad when losing
             if(battleState.enemyHP < 40) {
+                // Sad Enemy
+                enemyMouth.style.height = "10px";
                 enemyMouth.style.borderRadius = "50% 50% 0 0";
                 enemyMouth.style.borderTop = "3px solid black";
                 enemyMouth.style.borderBottom = "none";
+            } else {
+                enemyMouth.style.height = "0";
+                enemyMouth.style.borderBottom = "3px solid black";
             }
         }
 
