@@ -54,15 +54,15 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 67, 53, 0); }
         }
         
+        /* Stats Bar - Sauber */
         .stats-bar {
             display: flex; justify-content: space-around; padding: 10px;
             background: white; font-size: 0.9rem; font-weight: bold;
             align-items: center; 
         }
-        .stat-group { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
         .stat-item span { color: var(--google-green); }
-        
-        /* Feedback Button im Pet Container */
+
+        /* Feedback Button - Im Pet Container positioniert */
         .feedback-btn {
             position: absolute; top: 10px; left: 10px;
             background-color: rgba(255,255,255,0.8); color: #5f6368;
@@ -221,7 +221,7 @@
         .throw-anim .arm.right { animation: throwArm 0.5s; }
         @keyframes throwArm { 0% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } 100% { transform: rotate(0deg); } }
 
-        /* ITEMS IN BATTLE (Positions angepasst an Battle Scale) */
+        /* ITEMS IN BATTLE (Position angepasst an Battle Scale) */
         #hero-fighter .age-baby { top: 130px; left: 50%; transform: translateX(-50%); font-size: 2.5rem; }
         #hero-fighter .age-teen { bottom: -5px; right: -25px; font-size: 4rem; transform: rotate(-10deg); z-index: 20; }
         #hero-fighter .age-adult { bottom: 0; left: -15px; font-size: 3.5rem; z-index: 20; }
@@ -299,7 +299,6 @@
         .input-group { margin-bottom: 10px; text-align: left; }
         .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;}
         
-        /* Button */
         .primary-btn { 
             width: 100%; padding: 12px; background: var(--google-blue); color: white; 
             border: none; border-radius: 8px; font-weight: bold; cursor: pointer; 
@@ -316,7 +315,7 @@
 </head>
 <body>
 
-    <!-- Login -->
+    <!-- Login OHNE Form Tag -->
     <div id="auth-overlay" class="overlay" style="display: flex;">
         <div class="card">
             <h2 style="color:var(--google-blue)">UWE Anmeldung</h2>
@@ -324,8 +323,8 @@
                 <div class="input-group"><label>Vorname</label><input type="text" id="fname" required></div>
                 <div class="input-group"><label>Nachname</label><input type="text" id="lname" required></div>
                 <div class="input-group"><label>Store ID</label><input type="number" id="storeid" required></div>
-                <!-- FIXED: Function name matches script -->
-                <button type="button" class="primary-btn" onclick="performLogin()">Starten</button>
+                <!-- ONCLICK EVENT AUF performLogin -->
+                <button type="button" class="primary-btn" onclick="startSimpleLogin()">Starten</button>
             </div>
         </div>
     </div>
@@ -389,7 +388,7 @@
             <button class="escape-btn" onclick="endBattle(false)">Flucht</button>
             
             <div class="battle-arena">
-                <!-- HERO (Pixel Base + Arms) -->
+                <!-- HERO (Identical pixel-base + arms) -->
                 <div class="fighter-wrapper">
                     <div id="hero-fighter" class="pixel-base">
                         <div class="visor"><div class="lens"></div><div class="lens"></div></div>
@@ -503,7 +502,7 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV25');
+            const localUser = localStorage.getItem('uweStateUserV30');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -511,8 +510,8 @@
             }
         }
 
-        // --- FIXED LOGIN LOGIC: FUNCTION MATCHES ONCLICK ---
-        function performLogin() {
+        // --- SIMPLE LOGIN (Fire & Forget) ---
+        function startSimpleLogin() {
             const fname = document.getElementById('fname').value.trim();
             const lname = document.getElementById('lname').value.trim();
             const storeid = document.getElementById('storeid').value.trim();
@@ -523,29 +522,21 @@
             }
 
             user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV25', JSON.stringify(user));
+            localStorage.setItem('uweStateUserV30', JSON.stringify(user));
             
+            // Hide overlay first (Important for APK)
             document.getElementById('auth-overlay').style.display = 'none';
             
-            // Check State
-            const savedState = localStorage.getItem('uweStateV25');
-            if(savedState) {
-                state = JSON.parse(savedState);
-            } else {
+            // Initial State or Load existing
+            loadState(); 
+            if(!state.joinedDate) {
                 state.joinedDate = new Date().getTime();
                 saveState();
             }
             
+            // Fire background sync (doesn't block UI)
             if(db) {
-                db.collection('users').doc(`${storeid}_${lname}`).get().then(doc => {
-                    if(doc.exists && doc.data().state) {
-                        state = doc.data().state;
-                        saveState();
-                        updateVisuals();
-                    } else {
-                        db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate}, {merge:true});
-                    }
-                });
+                db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate}, {merge:true});
             }
             
             updateVisuals();
@@ -553,7 +544,7 @@
         }
 
         function loadState() {
-            const saved = localStorage.getItem('uweStateV25');
+            const saved = localStorage.getItem('uweStateV30');
             if (saved) state = JSON.parse(saved);
             
             const today = new Date().toISOString().slice(0,10);
@@ -566,7 +557,7 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateV25', JSON.stringify(state));
+            localStorage.setItem('uweStateV30', JSON.stringify(state));
             if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state}).catch(e=>{});
         }
 
@@ -604,7 +595,7 @@
             document.getElementById('mood-val').innerText = mood;
 
             let scale = 0.6;
-            // Hide all first
+            // Hide items
             document.getElementById('main-age-baby').style.display = 'none';
             document.getElementById('main-age-teen').style.display = 'none';
             document.getElementById('main-age-adult').style.display = 'none';
@@ -759,4 +750,47 @@
             logText(`${excuse}`);
             const enemyDiv = document.getElementById('enemy-fighter');
             enemyDiv.classList.add('throw-anim');
-            throwProjec
+            throwProjectile(enemyDiv, document.getElementById('hero-fighter'), '🪨');
+            setTimeout(() => {
+                enemyDiv.classList.remove('throw-anim');
+                const dmg = 5 + Math.floor(Math.random()*10);
+                battleState.heroHP = Math.max(0, battleState.heroHP - dmg);
+                updateBattleUI();
+                if(battleState.heroHP <= 0) endBattle(false); else { disableBtns(false); generateAttackButtons(); }
+            }, 500);
+        }
+
+        function throwProjectile(from, to, icon) {
+            const p = document.createElement('div'); p.className = 'projectile'; p.innerText = icon; p.style.display = 'block'; document.body.appendChild(p);
+            const start = from.getBoundingClientRect(); const end = to.getBoundingClientRect();
+            p.style.left = start.left+30+'px'; p.style.top = start.top+30+'px';
+            p.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${end.left-start.left}px, ${end.top-start.top}px) scale(1.5)` }], { duration: 400, easing: 'ease-in' }).onfinish = () => {
+                p.remove(); createExplosion(end.left+20, end.top+40); to.classList.add('anim-hit'); setTimeout(()=>to.classList.remove('anim-hit'), 400);
+            };
+        }
+        function createExplosion(x, y) {
+            const ex = document.createElement('div'); ex.className = 'explosion'; ex.innerText = '💥'; ex.style.left = x+'px'; ex.style.top = y+'px'; document.body.appendChild(ex); setTimeout(() => ex.remove(), 500);
+        }
+        function disableBtns(d) { document.querySelectorAll('.attack-btn').forEach(b=>b.disabled=d); }
+
+        function endBattle(won) {
+            battleState.active = false;
+            if(won) {
+                logText("SIEG! Phone X hat keinen Akku mehr.");
+                confetti();
+                state.happiness = 100;
+                state.battleWonToday = true;
+                checkLevelUp();
+            } else {
+                logText("Niederlage...");
+            }
+            saveState();
+            setTimeout(() => {
+                document.getElementById('battle-overlay').style.display = 'none';
+                document.getElementById('controls').style.display = 'grid'; 
+                updateVisuals();
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
