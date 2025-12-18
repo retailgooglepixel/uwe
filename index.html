@@ -74,16 +74,26 @@
             overflow: hidden; perspective: 1000px;
         }
 
-        /* Pixel Character */
+        /* --- SHARED PIXEL DESIGN CLASS --- */
+        /* Dies definiert das Aussehen für Startseite UND Battle */
+        .pixel-base {
+            width: 130px; height: 250px; 
+            background-color: var(--pixel-body);
+            border-radius: 24px; border: 5px solid #3c4043; 
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: background-color 0.5s;
+            transform-style: preserve-3d;
+        }
+
+        /* Startseiten Pixel Positionierung */
         #pixel-pet {
-            width: 130px; height: 250px; background-color: var(--pixel-body);
-            border-radius: 24px; border: 5px solid #3c4043; position: relative;
-            transform: scale(var(--current-scale)); box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            z-index: 30; /* Höher als Toys! */
-            cursor: pointer; transform-style: preserve-3d; 
+            transform: scale(var(--current-scale)); 
+            z-index: 30; cursor: pointer;
             transition: background-color 0.5s, transform 0.5s, opacity 0.5s; 
             transform-origin: bottom center;
         }
+
         .visor {
             width: 90%; height: 38px; background-color: var(--pixel-cam-bar);
             border-radius: 19px; position: absolute; top: 30px; left: 5%;
@@ -117,20 +127,20 @@
         .spinning { animation: spin360 1s ease-in-out forwards; }
         @keyframes spin360 { 50% { transform: scale(calc(var(--current-scale) * 1.1)) rotateY(180deg); } 100% { transform: scale(var(--current-scale)) rotateY(360deg); } }
 
-        /* Age Items (Inside Pixel) */
+        /* Age Items (Wachstums Items) */
         .age-item { position: absolute; pointer-events: none; transition: all 0.5s; display: none; z-index: 20; }
-        #age-baby { top: 95px; left: 50%; transform: translateX(-50%); font-size: 2rem; }
-        #age-teen { bottom: -10px; right: -40px; font-size: 4rem; transform: rotate(-10deg); z-index: 5; }
-        #age-adult { bottom: 0; left: -30px; font-size: 3.5rem; z-index: 20; }
+        
+        /* Positionierung im Pixel Container */
+        .age-baby { top: 95px; left: 50%; transform: translateX(-50%); font-size: 2rem; } /* Schnuller */
+        .age-teen { bottom: -10px; right: -40px; font-size: 4rem; transform: rotate(-10deg); z-index: 5; } /* Skateboard */
+        .age-adult { bottom: 0; left: -30px; font-size: 3.5rem; z-index: 20; } /* Koffer */
 
-        /* Reward Items - Interaktiv */
+        /* Reward Items (Interaktiv) */
         .reward-item { position: absolute; transition: all 0.5s; opacity: 0; cursor: pointer; font-size: 3rem; z-index: 20; }
         .reward-item.visible { opacity: 1; }
-        
         #toy { bottom: 40px; right: 20px; transform: scale(0.6) rotate(-15deg); }
         #house { bottom: 60px; left: 10px; z-index: 10; font-size: 5rem; transform: scale(0.6); }
 
-        /* Kuschel Animation */
         .toy-cuddle { animation: cuddle 2.5s ease-in-out; z-index: 40 !important; }
         @keyframes cuddle { 
             0% { transform: scale(0.6) rotate(-15deg) translate(0, 0); }
@@ -171,60 +181,76 @@
         
         .fighter-wrapper { display: flex; flex-direction: column; align-items: center; width: 40%; position: relative; }
         
+        /* Fighter Base */
         .fighter { 
             width: 80px; height: 150px; border-radius: 18px; position: relative; 
             transition: transform 0.2s; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
         }
+        
+        /* HERO FIGHTER: Nutzt jetzt pixel-base Klasse für identisches Aussehen */
         #hero-fighter { 
-            background: linear-gradient(135deg, var(--pixel-body), #4a7bb5); 
-            border: 4px solid #3c4043; 
+            transform-origin: bottom center;
+            transform: scale(0.7); /* Leicht kleiner für Arena */
         }
+        
         #enemy-fighter { 
+            width: 80px; height: 150px; border-radius: 18px; position: relative; 
             background: linear-gradient(135deg, #d0d0d0, #a0a0a0); 
             border: 4px solid #111; 
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
         }
 
+        /* ARME */
         .arm {
-            width: 20px; height: 50px; position: absolute; top: 50px; border-radius: 10px;
+            width: 25px; height: 70px; position: absolute; top: 90px; border-radius: 12px;
             transform-origin: top center; transition: transform 0.2s;
         }
-        #hero-fighter .arm.left { background: var(--pixel-body); left: -15px; border: 2px solid #3c4043; }
-        #hero-fighter .arm.right { background: var(--pixel-body); right: -15px; border: 2px solid #3c4043; }
+        /* Hero Arms matching body */
+        #hero-fighter .arm.left { background-color: var(--pixel-body); left: -25px; border: 3px solid #3c4043; }
+        #hero-fighter .arm.right { background-color: var(--pixel-body); right: -25px; border: 3px solid #3c4043; }
+        
+        /* Enemy Arms */
+        #enemy-fighter .arm { width: 20px; height: 50px; top: 50px; }
         #enemy-fighter .arm.left { background: #d0d0d0; left: -15px; border: 2px solid #111; }
         #enemy-fighter .arm.right { background: #d0d0d0; right: -15px; border: 2px solid #111; }
 
         .throw-anim .arm.right { animation: throwArm 0.5s; }
         @keyframes throwArm { 0% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } 100% { transform: rotate(0deg); } }
 
-        /* Battle Faces & Mouths */
-        .battle-face { position: absolute; top: 35px; left: 0; width: 100%; text-align: center; }
-        .battle-eyes { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
-        .battle-eye { width: 6px; height: 6px; background: black; border-radius: 50%; }
+        /* ITEMS IM BATTLE (Angepasst an Hero Scale) */
+        #hero-fighter .age-baby { top: 55px; left: 50%; transform: translateX(-50%); font-size: 1.2rem; }
+        #hero-fighter .age-teen { bottom: -5px; right: -25px; font-size: 2.5rem; transform: rotate(-10deg); z-index: 20; }
+        #hero-fighter .age-adult { bottom: 0; left: -15px; font-size: 2rem; z-index: 20; }
+
+        /* Battle Faces */
+        #enemy-fighter .battle-face { position: absolute; top: 35px; left: 0; width: 100%; text-align: center; }
+        #enemy-fighter .battle-eyes { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+        #enemy-fighter .battle-eye { width: 6px; height: 6px; background: black; border-radius: 50%; }
         
-        .battle-mouth { 
+        /* Enemy Mouth */
+        #enemy-mouth { 
             width: 20px; height: 10px; background: transparent; margin: 0 auto; 
             transition: all 0.3s;
+            height: 0; border-bottom: 3px solid black; border-radius: 0; margin-top: 5px;
         }
-        #hero-mouth { border-bottom: 3px solid black; border-radius: 0 0 50% 50%; }
-        #enemy-mouth { height: 0; border-bottom: 3px solid black; border-radius: 0; margin-top: 5px; }
 
-        .projectile {
-            position: absolute; font-size: 2rem; z-index: 200; pointer-events: none;
-            display: none;
+        /* Hero Battle Mouth */
+        #hero-mouth {
+            width: 30px; height: 15px; border: 4px solid #3c4043;
+            border-color: transparent transparent #3c4043 transparent; border-radius: 50%;
+            position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+            transition: all 0.3s ease; opacity: 0.8;
         }
-        .explosion {
-            position: absolute; font-size: 3rem; z-index: 201; pointer-events: none;
-            animation: boom 0.5s forwards;
-        }
+
+        .projectile { position: absolute; font-size: 2rem; z-index: 200; pointer-events: none; display: none; }
+        .explosion { position: absolute; font-size: 3rem; z-index: 201; pointer-events: none; animation: boom 0.5s forwards; }
         @keyframes boom { 0% { transform: scale(0); opacity: 1; } 50% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
 
         .battery-container {
             width: 60px; height: 12px; border: 2px solid #555; border-radius: 3px;
             margin-top: 15px; position: relative; background: #222; padding: 2px;
         }
-        .battery-container::after {
-            content: ''; position: absolute; right: -5px; top: 3px; width: 3px; height: 6px; background: #555;
-        }
+        .battery-container::after { content: ''; position: absolute; right: -5px; top: 3px; width: 3px; height: 6px; background: #555; }
         .battery-level { height: 100%; background: var(--google-green); width: 100%; transition: width 0.5s, background 0.3s; }
         
         #battle-log-container {
@@ -292,7 +318,7 @@
 </head>
 <body>
 
-    <!-- Login -->
+    <!-- Login (Original Form) -->
     <div id="auth-overlay" class="overlay" style="display: flex;">
         <div class="card">
             <h2 style="color:var(--google-blue)">UWE Anmeldung</h2>
@@ -345,18 +371,18 @@
         <div id="house" class="reward-item" onclick="interactHouse()">🏠</div>
         <div id="toy" class="reward-item" onclick="interactToy()">🧸</div> 
 
-        <!-- Pixel Character (Z-Index Fix) -->
-        <div id="pixel-pet" class="neutral" onclick="petInteraction()">
+        <!-- Pixel Character (Main) -->
+        <div id="pixel-pet" class="pixel-base" onclick="petInteraction()">
             <div class="visor">
                 <div class="lens"></div><div class="lens"></div>
                 <div class="lens" id="tele-lens" style="display:none;"></div>
             </div>
             <div class="mouth"></div>
             <div class="g-logo">G</div>
-            <!-- Age Items -->
-            <div id="age-baby" class="age-item">🍼</div>
-            <div id="age-teen" class="age-item">🛹</div>
-            <div id="age-adult" class="age-item">💼</div>
+            <!-- Age Items (Main) -->
+            <div id="main-age-baby" class="age-item age-baby">🍼</div>
+            <div id="main-age-teen" class="age-item age-teen">🛹</div>
+            <div id="main-age-adult" class="age-item age-adult">💼</div>
         </div>
         
         <!-- BATTLE OVERLAY -->
@@ -365,12 +391,22 @@
             <button class="escape-btn" onclick="endBattle(false)">Flucht</button>
             
             <div class="battle-arena">
-                <!-- HERO -->
+                <!-- HERO (Pixel Base Class for Identical Look) -->
                 <div class="fighter-wrapper">
-                    <div id="hero-fighter" class="fighter">
-                        <div class="visor" style="transform: scale(0.6); top:15px; width:100%; left:0;"><div class="lens"></div><div class="lens"></div></div>
-                        <div class="battle-face"><div class="battle-mouth" id="hero-mouth"></div></div>
+                    <div id="hero-fighter" class="pixel-base">
+                        <div class="visor">
+                            <div class="lens"></div><div class="lens"></div>
+                        </div>
+                        <div class="mouth" id="hero-mouth"></div>
+                        <div class="g-logo">G</div>
+                        
+                        <!-- Battle Arms -->
                         <div class="arm left"></div><div class="arm right"></div>
+                        
+                        <!-- Battle Age Items (Hidden by default, shown by JS) -->
+                        <div id="battle-age-baby" class="age-item age-baby">🍼</div>
+                        <div id="battle-age-teen" class="age-item age-teen">🛹</div>
+                        <div id="battle-age-adult" class="age-item age-adult">💼</div>
                     </div>
                     <div class="battery-container"><div id="hero-hp" class="battery-level"></div></div>
                 </div>
@@ -447,18 +483,18 @@
         };
 
         const battleDescriptions = {
-            "Magic Eraser": "Pixel radiert Probleme weg!",
-            "Best Take": "Pixel tauscht Gesichter aus!",
-            "Night Sight": "Pixel macht die Nacht zum Tag!",
-            "Super Res Zoom": "Pixel zoomt extrem nah ran!",
-            "Gemini Live": "Pixel nutzt KI-Wissen!",
-            "Audio Eraser": "Pixel filtert Lärm heraus!",
-            "Circle to Search": "Pixel kreist den Gegner ein!",
-            "Call Screen": "Pixel blockt den Angriff!",
-            "Live Translate": "Pixel übersetzt den Schaden!",
-            "Real Tone": "Pixel zeigt wahre Stärke!",
-            "Video Boost": "Pixel optimiert die Leistung!",
-            "Astrophotography": "Pixel greift aus dem All an!"
+            "Magic Eraser": "Pixel radiert Probleme weg! Phone X findet seine Daten nicht mehr.",
+            "Best Take": "Pixel tauscht Gesichter aus! Phone X ist verwirrt vor dem Spiegel.",
+            "Night Sight": "Pixel macht die Nacht zum Tag! Phone X stolpert im Dunkeln.",
+            "Super Res Zoom": "Pixel zoomt extrem nah ran! Phone X fühlt sich beobachtet.",
+            "Gemini Live": "Pixel führt ein tiefes Gespräch. Phone X versteht nur Bahnhof.",
+            "Audio Eraser": "Pixel filtert den Lärm. Phone X hört seine eigenen Gedanken nicht.",
+            "Circle to Search": "Pixel kreist den Gegner ein! Phone X fühlt sich umzingelt.",
+            "Call Screen": "Pixel blockt den Angriff! Phone X hängt in der Warteschleife.",
+            "Live Translate": "Pixel spricht alle Sprachen. Phone X braucht ein Wörterbuch.",
+            "Real Tone": "Pixel zeigt wahre Farben. Phone X sieht blass aus.",
+            "Video Boost": "Pixel optimiert das Video. Phone X ruckelt nur noch.",
+            "Astrophotography": "Pixel fotografiert Sterne. Phone X sieht nur Rauschen."
         };
         const battleFeatures = Object.keys(battleDescriptions);
         
@@ -468,7 +504,6 @@
             "Phone X ist verwirrt...", "Phone X Akku fast leer..."
         ];
 
-        // --- HIER SIND DIE GANZEN SÄTZE ---
         const questions = {
             feed: [ 
                 { q: "Wie lange hält der Akku der Pixel 9 Serie im Extrem-Energiesparmodus?", options: ["Bis zu 48h", "Bis zu 72h", "Bis zu 100h"], a: 2 },
@@ -499,7 +534,7 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV10');
+            const localUser = localStorage.getItem('uweStateUserV18');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -512,7 +547,7 @@
             const lname = document.getElementById('lname').value;
             const storeid = document.getElementById('storeid').value;
             user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV10', JSON.stringify(user));
+            localStorage.setItem('uweStateUserV18', JSON.stringify(user));
             document.getElementById('auth-overlay').style.display = 'none';
             state.joinedDate = new Date().getTime();
             saveState();
@@ -520,7 +555,7 @@
             updateVisuals();
         }
         function loadState() {
-            const saved = localStorage.getItem('uweStateV10');
+            const saved = localStorage.getItem('uweStateV18');
             if (saved) state = JSON.parse(saved);
             const today = new Date().toISOString().slice(0,10);
             if (state.lastPlayedDate !== today) {
@@ -531,7 +566,7 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateV10', JSON.stringify(state));
+            localStorage.setItem('uweStateV18', JSON.stringify(state));
             if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state});
         }
 
@@ -556,7 +591,7 @@
             }
 
             const pet = document.getElementById('pixel-pet');
-            pet.classList.add('happy'); // Optional class if needed for CSS triggers
+            pet.classList.add('happy'); 
             setTimeout(() => { toy.classList.remove('toy-cuddle'); pet.classList.remove('happy'); }, 2500);
         }
 
@@ -581,16 +616,35 @@
             document.getElementById('mood-val').innerText = mood;
 
             let scale = 0.6;
-            document.getElementById('age-baby').style.display = 'none';
-            document.getElementById('age-teen').style.display = 'none';
-            document.getElementById('age-adult').style.display = 'none';
+            // Hide all age items on MAIN screen first
+            document.getElementById('main-age-baby').style.display = 'none';
+            document.getElementById('main-age-teen').style.display = 'none';
+            document.getElementById('main-age-adult').style.display = 'none';
 
-            if (days <= 3) { scale = 0.6; document.getElementById('age-baby').style.display = 'block'; }
-            else if (days <= 14) { scale = 0.85; document.getElementById('age-teen').style.display = 'block'; }
-            else { scale = 1.0; document.getElementById('age-adult').style.display = 'block'; }
+            let ageGroup = 'baby';
+            if (days <= 3) { 
+                scale = 0.6; ageGroup = 'baby'; 
+                document.getElementById('main-age-baby').style.display = 'block'; 
+            }
+            else if (days <= 14) { 
+                scale = 0.85; ageGroup = 'teen'; 
+                document.getElementById('main-age-teen').style.display = 'block'; 
+            }
+            else { 
+                scale = 1.0; ageGroup = 'adult'; 
+                document.getElementById('main-age-adult').style.display = 'block'; 
+            }
+            
+            // Set global scale for main pixel
             document.documentElement.style.setProperty('--current-scale', scale);
+            
+            // SAVE AGE GROUP TO DATA ATTRIBUTE FOR BATTLE
+            document.documentElement.setAttribute('data-age-group', ageGroup);
 
-            document.getElementById('level-val').innerText = state.level === 1 ? "1 (Pixel 10)" : (state.level === 2 ? "2 (Pro)" : "3 (Pro XL)");
+            let levelLabel = "1 (Pixel 10)";
+            if (state.level === 2) { levelLabel = "2 (Pro)"; }
+            if (state.level === 3) { levelLabel = "3 (Pro XL)"; }
+            document.getElementById('level-val').innerText = levelLabel;
             document.getElementById('tele-lens').style.display = state.level > 1 ? 'block' : 'none';
 
             if(state.inventory.toy) document.getElementById('toy').classList.add('visible');
@@ -598,10 +652,9 @@
 
             const pet = document.getElementById('pixel-pet');
             if (!pet.classList.contains('spinning')) {
-                pet.classList.remove('happy', 'sad', 'neutral');
                 let bodyColor = "#6996D3"; 
-                if (state.happiness >= 60) { pet.classList.add('happy'); bodyColor = "#c3ecd2"; }
-                else if (state.happiness <= 30) { pet.classList.add('sad'); bodyColor = "#9aa0a6"; }
+                if (state.happiness >= 60) { bodyColor = "#c3ecd2"; }
+                else if (state.happiness <= 30) { bodyColor = "#9aa0a6"; }
                 document.documentElement.style.setProperty('--pixel-body', bodyColor);
             }
         }
@@ -670,6 +723,12 @@
             updateBattleUI();
             generateAttackButtons();
             
+            // SHOW CORRECT AGE ITEM IN BATTLE
+            const ageGroup = document.documentElement.getAttribute('data-age-group') || 'baby';
+            document.getElementById('battle-age-baby').style.display = (ageGroup === 'baby') ? 'block' : 'none';
+            document.getElementById('battle-age-teen').style.display = (ageGroup === 'teen') ? 'block' : 'none';
+            document.getElementById('battle-age-adult').style.display = (ageGroup === 'adult') ? 'block' : 'none';
+
             // UI Setup
             document.getElementById('controls').style.display = 'none'; // Hide tasks
             document.getElementById('battle-overlay').style.display = 'flex';
@@ -697,7 +756,6 @@
             const heroMouth = document.getElementById('hero-mouth');
             const enemyMouth = document.getElementById('enemy-mouth');
             
-            // Hero Smiles when winning, otherwise neutral line
             if(battleState.enemyHP < battleState.heroHP) {
                 // Smile
                 heroMouth.style.height = "10px";
@@ -725,7 +783,8 @@
 
         function performTurn(feat) {
             if(!battleState.active) return;
-            logText(`Pixel nutzt ${feat}!`);
+            const desc = battleDescriptions[feat];
+            logText(`Pixel nutzt ${feat}!\n${desc}`);
             
             const heroDiv = document.getElementById('hero-fighter');
             heroDiv.classList.add('throw-anim');
