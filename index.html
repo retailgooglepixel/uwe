@@ -57,7 +57,7 @@
         .stats-bar {
             display: flex; justify-content: space-around; padding: 10px;
             background: white; font-size: 0.9rem; font-weight: bold;
-            align-items: center; 
+            align-items: flex-start; 
         }
         .stat-group { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
         .stat-item span { color: var(--google-green); }
@@ -188,16 +188,12 @@
         
         .fighter-wrapper { display: flex; flex-direction: column; align-items: center; width: 40%; position: relative; }
         
-        /* Fighter Base */
         .fighter { 
             width: 80px; height: 150px; border-radius: 18px; position: relative; 
             transition: transform 0.2s; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
         }
         
-        #hero-fighter { 
-            transform-origin: bottom center;
-            transform: scale(0.7); 
-        }
+        #hero-fighter { transform-origin: bottom center; transform: scale(0.7); }
         
         #enemy-fighter { 
             width: 80px; height: 150px; border-radius: 18px; position: relative; 
@@ -220,7 +216,7 @@
         .throw-anim .arm.right { animation: throwArm 0.5s; }
         @keyframes throwArm { 0% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } 100% { transform: rotate(0deg); } }
 
-        /* ITEMS IN BATTLE (Gleiche Position wie Startseite) */
+        /* ITEMS IN BATTLE */
         #hero-fighter .age-baby { top: 130px; left: 50%; transform: translateX(-50%); font-size: 2.5rem; }
         #hero-fighter .age-teen { bottom: -5px; right: -25px; font-size: 4rem; transform: rotate(-10deg); z-index: 20; }
         #hero-fighter .age-adult { bottom: 0; left: -15px; font-size: 3.5rem; z-index: 20; }
@@ -298,7 +294,7 @@
         .input-group { margin-bottom: 10px; text-align: left; }
         .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;}
         
-        /* Reparierter Start-Button (Kein Submit Type) */
+        /* WICHTIG: Button Type ist BUTTON, nicht SUBMIT. Verhindert Reload. */
         .primary-btn { 
             width: 100%; padding: 12px; background: var(--google-blue); color: white; 
             border: none; border-radius: 8px; font-weight: bold; cursor: pointer; 
@@ -315,7 +311,7 @@
 </head>
 <body>
 
-    <!-- Login (Repariert: Kein <form> Tag, nur Divs und OnClick) -->
+    <!-- Login OHNE Form Tag -->
     <div id="auth-overlay" class="overlay" style="display: flex;">
         <div class="card">
             <h2 style="color:var(--google-blue)">UWE Anmeldung</h2>
@@ -323,7 +319,8 @@
                 <div class="input-group"><label>Vorname</label><input type="text" id="fname" required></div>
                 <div class="input-group"><label>Nachname</label><input type="text" id="lname" required></div>
                 <div class="input-group"><label>Store ID</label><input type="number" id="storeid" required></div>
-                <button type="button" class="primary-btn" onclick="handleLogin()">Starten</button>
+                <!-- ONCLICK EVENT STATT SUBMIT -->
+                <button type="button" class="primary-btn" onclick="performLogin()">Starten</button>
             </div>
         </div>
     </div>
@@ -356,16 +353,14 @@
         <div class="stats-bar">
             <div class="stat-group">
                 <div style="font-size:0.9rem;">Level: <span id="level-val">1</span></div>
+                <button class="feedback-btn" onclick="openFeedback()">Feedback & Anleitung</button>
             </div>
-            <div class="stat-group"><div>Laune: <span id="mood-val">😐</span></div></div>
-            <div class="stat-group"><div>Tage: <span id="days-val">1</span></div></div>
+            <div class="stat-group" style="padding-top:5px;"><div>Laune: <span id="mood-val">😐</span></div></div>
+            <div class="stat-group" style="padding-top:5px;"><div>Tage: <span id="days-val">1</span></div></div>
         </div>
     </header>
 
     <div id="pet-container">
-        <!-- Feedback Button Oben Links im Bild -->
-        <button class="feedback-btn" onclick="openFeedback()">Feedback & Anleitung</button>
-
         <!-- Belohnungs Items (Interaktiv) -->
         <div id="house" class="reward-item" onclick="interactHouse()">🏠</div>
         <div id="toy" class="reward-item" onclick="interactToy()">🧸</div> 
@@ -375,7 +370,7 @@
             <div class="visor"><div class="lens"></div><div class="lens"></div><div class="lens" id="tele-lens" style="display:none;"></div></div>
             <div class="mouth"></div>
             <div class="g-logo">G</div>
-            <!-- Age Items (Main) -->
+            <!-- Age Items -->
             <div id="main-age-baby" class="age-item age-baby">🍼</div>
             <div id="main-age-teen" class="age-item age-teen">🛹</div>
             <div id="main-age-adult" class="age-item age-adult">💼</div>
@@ -387,7 +382,7 @@
             <button class="escape-btn" onclick="endBattle(false)">Flucht</button>
             
             <div class="battle-arena">
-                <!-- HERO (Identical pixel-base + arms) -->
+                <!-- HERO -->
                 <div class="fighter-wrapper">
                     <div id="hero-fighter" class="pixel-base">
                         <div class="visor"><div class="lens"></div><div class="lens"></div></div>
@@ -395,7 +390,6 @@
                         <div class="g-logo">G</div>
                         <div class="arm left"></div><div class="arm right"></div>
                         
-                        <!-- Battle Age Items -->
                         <div id="battle-age-baby" class="age-item age-baby">🍼</div>
                         <div id="battle-age-teen" class="age-item age-teen">🛹</div>
                         <div id="battle-age-adult" class="age-item age-adult">💼</div>
@@ -487,7 +481,6 @@
             "Astrophotography": "Pixel greift aus dem All an! Phone X sieht nur Rauschen."
         };
         const battleFeatures = Object.keys(battleDescriptions);
-        
         const enemyExcuses = ["Phone X wird heiß...", "Phone X ruckelt...", "Phone X sucht Netz...", "Phone X Speicher voll...", "Phone X stürzt ab...", "Phone X Akku leer..."];
 
         const questions = {
@@ -502,7 +495,7 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV23');
+            const localUser = localStorage.getItem('uweStateUserV30');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -510,11 +503,11 @@
             }
         }
 
-        // --- SAFE LOGIN LOGIC (CLICK BASED, NO FORM SUBMIT) ---
-        function handleLogin() {
-            const fname = document.getElementById('fname').value;
-            const lname = document.getElementById('lname').value;
-            const storeid = document.getElementById('storeid').value;
+        // --- SAFE LOGIN FUNCTION ---
+        function performLogin() {
+            const fname = document.getElementById('fname').value.trim();
+            const lname = document.getElementById('lname').value.trim();
+            const storeid = document.getElementById('storeid').value.trim();
 
             if(!fname || !lname || !storeid) {
                 alert("Bitte alle Felder ausfüllen!");
@@ -522,27 +515,35 @@
             }
 
             user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV23', JSON.stringify(user));
-            
+            localStorage.setItem('uweStateUserV30', JSON.stringify(user));
             document.getElementById('auth-overlay').style.display = 'none';
             
-            // Check State
-            const savedState = localStorage.getItem('uweStateV23');
-            if(savedState) {
-                state = JSON.parse(savedState);
-            } else {
+            // Initial State or Load existing
+            loadState(); 
+            if(!state.joinedDate) {
                 state.joinedDate = new Date().getTime();
                 saveState();
             }
             
-            // Sync Firebase
-            if(db) db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate}, {merge:true});
+            if(db) {
+                // Sync with Cloud
+                db.collection('users').doc(`${storeid}_${lname}`).get().then(doc => {
+                    if(doc.exists && doc.data().state) {
+                        state = doc.data().state;
+                        saveState();
+                        updateVisuals();
+                    } else {
+                        db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate}, {merge:true});
+                    }
+                });
+            }
             
             updateVisuals();
+            showToast("Willkommen " + fname + "!");
         }
 
         function loadState() {
-            const saved = localStorage.getItem('uweStateV23');
+            const saved = localStorage.getItem('uweStateV30');
             if (saved) state = JSON.parse(saved);
             
             const today = new Date().toISOString().slice(0,10);
@@ -555,7 +556,7 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateV23', JSON.stringify(state));
+            localStorage.setItem('uweStateV30', JSON.stringify(state));
             if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state}).catch(e=>{});
         }
 
@@ -578,8 +579,9 @@
         }
 
         function interactHouse() {
-            document.getElementById('pixel-pet').classList.add('enter-house');
-            setTimeout(() => { document.getElementById('pixel-pet').classList.remove('enter-house'); }, 3000);
+            const pet = document.getElementById('pixel-pet');
+            pet.classList.add('enter-house');
+            setTimeout(() => { pet.classList.remove('enter-house'); }, 3000);
         }
 
         function calculateDays() { return Math.floor((new Date().getTime() - state.joinedDate) / (86400000)) + 1; }
@@ -657,4 +659,76 @@
             saveState(); setTimeout(()=>{document.getElementById('modal-overlay').style.display='none'; updateVisuals();},1000);
         }
 
-        function checkLev
+        function checkLevelUp() {
+            state.happiness = Math.min(100, state.happiness+20);
+            const allTasks = Object.values(state.dailyTasksCompleted).every(v=>v);
+            
+            if (allTasks) {
+                if(!state.inventory.toy) { state.inventory.toy=true; showToast("Spielzeug freigeschaltet!"); }
+                
+                if (state.battleWonToday) {
+                    state.level++;
+                    state.battleWonToday = false; 
+                    showToast("🎉 LEVEL UP!");
+                    if(state.level >= 3 && !state.inventory.house) { state.inventory.house=true; showToast("Hütte freigeschaltet!"); }
+                }
+            }
+            saveState();
+        }
+
+        function showToast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.opacity=1; setTimeout(()=>t.style.opacity=0,3000); }
+
+        // --- Battle ---
+        let battleState = { heroHP: 100, enemyHP: 100, active: false };
+
+        function initBattle() {
+            battleState = { heroHP: 100, enemyHP: 100, active: true };
+            updateBattleUI();
+            generateAttackButtons();
+            
+            const ageGroup = document.documentElement.getAttribute('data-age-group') || 'baby';
+            document.getElementById('battle-age-baby').style.display = (ageGroup === 'baby') ? 'block' : 'none';
+            document.getElementById('battle-age-teen').style.display = (ageGroup === 'teen') ? 'block' : 'none';
+            document.getElementById('battle-age-adult').style.display = (ageGroup === 'adult') ? 'block' : 'none';
+
+            document.getElementById('controls').style.display = 'none'; 
+            document.getElementById('battle-overlay').style.display = 'flex';
+            document.getElementById('battle-log').innerText = "Ein wildes Phone X erscheint!\n";
+        }
+
+        function logText(text) {
+            const el = document.getElementById('battle-log');
+            el.innerText += text + "\n";
+            document.getElementById('battle-log-container').scrollTop = document.getElementById('battle-log-container').scrollHeight;
+        }
+
+        function generateAttackButtons() {
+            const c = document.getElementById('battle-actions'); c.innerHTML = '';
+            battleFeatures.sort(()=>0.5-Math.random()).slice(0,4).forEach(name => {
+                const b = document.createElement('button'); b.className='attack-btn'; b.innerText=name;
+                b.onclick = () => performTurn(name); c.appendChild(b);
+            });
+        }
+
+        function updateBattleUI() {
+            document.getElementById('hero-hp').style.width = battleState.heroHP + '%';
+            document.getElementById('enemy-hp').style.width = battleState.enemyHP + '%';
+            
+            const heroMouth = document.getElementById('hero-mouth');
+            const enemyMouth = document.getElementById('enemy-mouth');
+            
+            if(battleState.enemyHP < battleState.heroHP) {
+                heroMouth.style.height = "10px"; heroMouth.style.borderRadius = "0 0 50% 50%"; heroMouth.style.borderBottom = "3px solid black"; heroMouth.style.borderTop = "none";
+            } else {
+                heroMouth.style.height = "0"; heroMouth.style.borderRadius = "0"; heroMouth.style.borderBottom = "3px solid black";
+            }
+            if(battleState.enemyHP < 40) {
+                enemyMouth.style.height = "10px"; enemyMouth.style.borderRadius = "50% 50% 0 0"; enemyMouth.style.borderTop = "3px solid black"; enemyMouth.style.borderBottom = "none";
+            } else {
+                enemyMouth.style.height = "0"; enemyMouth.style.borderBottom = "3px solid black";
+            }
+        }
+
+        function performTurn(feat) {
+            if(!battleState.active) return;
+            logText(`Pixel nutzt ${feat}!\n${battleDescriptions[feat]}
