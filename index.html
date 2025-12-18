@@ -74,7 +74,7 @@
             overflow: hidden; perspective: 1000px;
         }
 
-        /* --- SHARED PIXEL DESIGN (Main & Battle) --- */
+        /* --- PIXEL DESIGN (Shared Class) --- */
         .pixel-look {
             width: 130px; height: 250px; 
             background-color: var(--pixel-body);
@@ -108,7 +108,7 @@
             font-size: 28px; color: rgba(255,255,255,0.6); font-weight: bold;
         }
 
-        /* Main Screen Specifics */
+        /* Main Screen Pixel */
         #pixel-pet {
             transform: scale(var(--current-scale)); 
             z-index: 30; cursor: pointer; transform-style: preserve-3d; 
@@ -177,10 +177,16 @@
         
         .fighter-wrapper { display: flex; flex-direction: column; align-items: center; width: 40%; position: relative; }
         
-        /* BATTLE PIXEL: Inherits .pixel-look but scaled */
+        /* Fighter Styling */
+        .fighter { 
+            width: 80px; height: 150px; border-radius: 18px; position: relative; 
+            transition: transform 0.2s; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* HERO FIGHTER: IDENTISCH MIT MAIN PIXEL */
         #hero-fighter { 
             transform-origin: bottom center;
-            transform: scale(0.7); /* Scale it to fit battle arena */
+            transform: scale(0.7); /* Scale to fit arena */
         }
         
         #enemy-fighter { 
@@ -190,22 +196,26 @@
             box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
         }
 
-        /* ARMS - Correctly positioned for the 130x250 Body of hero */
+        /* ARMS IM KAMPF */
         .arm {
             width: 25px; height: 70px; position: absolute; top: 90px; border-radius: 12px;
             transform-origin: top center; transition: transform 0.2s;
         }
-        /* Hero Arms match pixel body */
+        /* Arms inherit pixel color from container var */
         #hero-fighter .arm.left { background-color: var(--pixel-body); left: -25px; border: 3px solid #3c4043; }
         #hero-fighter .arm.right { background-color: var(--pixel-body); right: -25px; border: 3px solid #3c4043; }
         
-        /* Enemy Arms smaller as body is smaller */
         #enemy-fighter .arm { width: 20px; height: 50px; top: 50px; }
         #enemy-fighter .arm.left { background: #d0d0d0; left: -15px; border: 2px solid #111; }
         #enemy-fighter .arm.right { background: #d0d0d0; right: -15px; border: 2px solid #111; }
 
         .throw-anim .arm.right { animation: throwArm 0.5s; }
         @keyframes throwArm { 0% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } 100% { transform: rotate(0deg); } }
+
+        /* ITEMS IM KAMPF */
+        #hero-fighter .age-baby { top: 55px; left: 50%; transform: translateX(-50%); font-size: 1.2rem; }
+        #hero-fighter .age-teen { bottom: -5px; right: -25px; font-size: 2.5rem; transform: rotate(-10deg); z-index: 20; }
+        #hero-fighter .age-adult { bottom: 0; left: -15px; font-size: 2rem; z-index: 20; }
 
         /* Battle Faces */
         #enemy-fighter .battle-face { position: absolute; top: 35px; left: 0; width: 100%; text-align: center; }
@@ -280,7 +290,13 @@
         #auth-overlay { background: rgba(0,0,0,0.9); z-index: 1000; }
         .input-group { margin-bottom: 10px; text-align: left; }
         .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;}
-        .primary-btn { width: 100%; padding: 12px; background: var(--google-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        /* ROBUSTER ANMELDE BUTTON OHNE SUBMIT */
+        .primary-btn { 
+            width: 100%; padding: 12px; background: var(--google-blue); color: white; 
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size:1.1rem;
+        }
+        .primary-btn:active { background: #3367d6; transform: scale(0.98); }
 
         .vote-container { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
         .vote-btn { font-size: 2.2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s; user-select: none;}
@@ -299,12 +315,14 @@
     <div id="auth-overlay" class="overlay" style="display: flex;">
         <div class="card">
             <h2 style="color:var(--google-blue)">UWE Anmeldung</h2>
-            <form id="login-form" onsubmit="handleLogin(event)">
-                <div class="input-group"><label>Vorname</label><input type="text" id="fname" required></div>
-                <div class="input-group"><label>Nachname</label><input type="text" id="lname" required></div>
-                <div class="input-group"><label>Store ID</label><input type="number" id="storeid" required></div>
-                <button type="submit" class="primary-btn">Starten</button>
-            </form>
+            <!-- KEIN FORM TAG MEHR, NUR DIVS -->
+            <div id="login-form-container">
+                <div class="input-group"><label>Vorname</label><input type="text" id="fname" placeholder="Dein Vorname"></div>
+                <div class="input-group"><label>Nachname</label><input type="text" id="lname" placeholder="Dein Nachname"></div>
+                <div class="input-group"><label>Store ID</label><input type="number" id="storeid" placeholder="1234"></div>
+                <!-- Manueller Button Klick -->
+                <button type="button" class="primary-btn" onclick="manualLogin()">Starten</button>
+            </div>
         </div>
     </div>
 
@@ -368,7 +386,7 @@
             <button class="escape-btn" onclick="endBattle(false)">Flucht</button>
             
             <div class="battle-arena">
-                <!-- HERO (Use identical structure as Main Pixel) -->
+                <!-- HERO (Use identical structure as Main Pixel via class pixel-look) -->
                 <div class="fighter-wrapper">
                     <div id="hero-fighter" class="pixel-look">
                         <div class="visor">
@@ -511,28 +529,54 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV15');
+            const localUser = localStorage.getItem('uweStateUserV16');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
                 loadState();
             }
         }
-        function handleLogin(e) {
-            e.preventDefault();
-            const fname = document.getElementById('fname').value;
-            const lname = document.getElementById('lname').value;
-            const storeid = document.getElementById('storeid').value;
-            user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV15', JSON.stringify(user));
-            document.getElementById('auth-overlay').style.display = 'none';
-            state.joinedDate = new Date().getTime();
-            saveState();
-            if(db) db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate});
-            updateVisuals();
+
+        // --- NEW MANUAL LOGIN FUNCTION (ROBUST) ---
+        function manualLogin() {
+            const fname = document.getElementById('fname').value.trim();
+            const lname = document.getElementById('lname').value.trim();
+            const storeid = document.getElementById('storeid').value.trim();
+
+            if(!fname || !lname || !storeid) {
+                alert("Bitte alle Felder ausfüllen!");
+                return;
+            }
+
+            try {
+                user = { fname, lname, storeid };
+                // 1. Speichern Lokal
+                localStorage.setItem('uweStateUserV16', JSON.stringify(user));
+                
+                // 2. Overlay weg
+                document.getElementById('auth-overlay').style.display = 'none';
+                
+                // 3. State Init
+                state.joinedDate = new Date().getTime();
+                saveState();
+                
+                // 4. Visual Update
+                updateVisuals();
+                showToast("Willkommen " + fname + "!");
+
+                // 5. Versuche Firebase (im Hintergrund)
+                if(db) {
+                    db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate})
+                    .catch(err => console.log("Offline mode active"));
+                }
+            } catch(e) {
+                alert("Fehler beim Starten: " + e.message);
+                document.getElementById('auth-overlay').style.display = 'none';
+            }
         }
+
         function loadState() {
-            const saved = localStorage.getItem('uweStateV15');
+            const saved = localStorage.getItem('uweStateV16');
             if (saved) state = JSON.parse(saved);
             const today = new Date().toISOString().slice(0,10);
             if (state.lastPlayedDate !== today) {
@@ -543,8 +587,8 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateV15', JSON.stringify(state));
-            if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state});
+            localStorage.setItem('uweStateV16', JSON.stringify(state));
+            if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state}).catch(e=>{});
         }
 
         // --- Interaction Logic ---
@@ -654,4 +698,171 @@
             }
 
             if (state.happiness < 100) state.happiness += 5;
-            sav
+            saveState();
+            setTimeout(() => { pet.classList.remove('spinning'); updateVisuals(); }, 1000);
+        }
+
+        function startDailyTask(cat) {
+            const q = questions[cat][Math.floor(Math.random()*questions[cat].length)];
+            document.getElementById('modal-overlay').style.display = 'flex';
+            document.getElementById('category-title').innerText = cat.toUpperCase();
+            document.getElementById('question-text').innerText = q.q;
+            const c = document.getElementById('options-container'); c.innerHTML = '';
+            document.getElementById('feedback-msg').innerText = '';
+            q.options.forEach((o, i) => {
+                const b = document.createElement('button'); b.className='option-btn'; b.innerText=o;
+                b.onclick = () => checkAnswer(i, q.a, b, cat); c.appendChild(b);
+            });
+        }
+        function checkAnswer(i, a, b, cat) {
+            const all = document.querySelectorAll('.option-btn'); all.forEach(x=>x.disabled=true);
+            const fb = document.getElementById('feedback-msg');
+            if(i===a) {
+                b.classList.add('correct'); fb.innerText="Richtig!"; fb.style.color="green";
+                state.dailyTasksCompleted[cat]=true; rewardUser(true);
+            } else {
+                b.classList.add('wrong'); fb.innerText="Falsch."; fb.style.color="red"; rewardUser(false);
+            }
+        }
+        function rewardUser(ok) {
+            if(ok) {
+                state.happiness = Math.min(100, state.happiness+20); state.xp+=30;
+                if(Object.values(state.dailyTasksCompleted).every(v=>v)) {
+                    if(!state.inventory.toy) { state.inventory.toy=true; showToast("Spielzeug freigeschaltet!"); }
+                }
+            } else state.happiness = Math.max(0, state.happiness-10);
+            saveState(); setTimeout(()=>{document.getElementById('modal-overlay').style.display='none'; updateVisuals();},1000);
+        }
+        function showToast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.opacity=1; setTimeout(()=>t.style.opacity=0,3000); }
+
+        // --- Battle ---
+        let battleState = { heroHP: 100, enemyHP: 100, active: false };
+
+        function initBattle() {
+            battleState = { heroHP: 100, enemyHP: 100, active: true };
+            updateBattleUI();
+            generateAttackButtons();
+            
+            // SHOW THE CORRECT AGE ITEM IN BATTLE
+            const ageGroup = document.documentElement.getAttribute('data-age-group') || 'baby';
+            document.getElementById('battle-age-baby').style.display = (ageGroup === 'baby') ? 'block' : 'none';
+            document.getElementById('battle-age-teen').style.display = (ageGroup === 'teen') ? 'block' : 'none';
+            document.getElementById('battle-age-adult').style.display = (ageGroup === 'adult') ? 'block' : 'none';
+
+            // UI Setup
+            document.getElementById('controls').style.display = 'none'; // Hide tasks
+            document.getElementById('battle-overlay').style.display = 'flex';
+            document.getElementById('battle-log').innerText = "Ein wildes Phone X erscheint!\n";
+        }
+
+        function logText(text) {
+            const el = document.getElementById('battle-log');
+            el.innerText += text + "\n";
+            document.getElementById('battle-log-container').scrollTop = document.getElementById('battle-log-container').scrollHeight;
+        }
+
+        function generateAttackButtons() {
+            const c = document.getElementById('battle-actions'); c.innerHTML = '';
+            battleFeatures.sort(()=>0.5-Math.random()).slice(0,4).forEach(name => {
+                const b = document.createElement('button'); b.className='attack-btn'; b.innerText=name;
+                b.onclick = () => performTurn(name); c.appendChild(b);
+            });
+        }
+
+        function updateBattleUI() {
+            document.getElementById('hero-hp').style.width = battleState.heroHP + '%';
+            document.getElementById('enemy-hp').style.width = battleState.enemyHP + '%';
+            
+            const heroMouth = document.getElementById('hero-mouth');
+            const enemyMouth = document.getElementById('enemy-mouth');
+            
+            // Hero Smiles when winning, otherwise neutral line
+            if(battleState.enemyHP < battleState.heroHP) {
+                // Smile
+                heroMouth.style.height = "10px";
+                heroMouth.style.borderRadius = "0 0 50% 50%";
+                heroMouth.style.borderBottom = "3px solid black";
+                heroMouth.style.borderTop = "none";
+            } else {
+                // Neutral
+                heroMouth.style.height = "0";
+                heroMouth.style.borderRadius = "0";
+                heroMouth.style.borderBottom = "3px solid black";
+            }
+            
+            if(battleState.enemyHP < 40) {
+                // Sad Enemy
+                enemyMouth.style.height = "10px";
+                enemyMouth.style.borderRadius = "50% 50% 0 0";
+                enemyMouth.style.borderTop = "3px solid black";
+                enemyMouth.style.borderBottom = "none";
+            } else {
+                enemyMouth.style.height = "0";
+                enemyMouth.style.borderBottom = "3px solid black";
+            }
+        }
+
+        function performTurn(feat) {
+            if(!battleState.active) return;
+            logText(`Pixel nutzt ${feat}!`);
+            
+            const heroDiv = document.getElementById('hero-fighter');
+            heroDiv.classList.add('throw-anim');
+            
+            // Projectile Animation
+            throwProjectile(heroDiv, document.getElementById('enemy-fighter'), '🚀');
+
+            setTimeout(() => {
+                heroDiv.classList.remove('throw-anim');
+                const dmg = 20 + Math.floor(Math.random()*15);
+                battleState.enemyHP = Math.max(0, battleState.enemyHP - dmg);
+                updateBattleUI();
+                
+                if(battleState.enemyHP <= 0) endBattle(true);
+                else {
+                    disableBtns(true);
+                    setTimeout(enemyTurn, 1500);
+                }
+            }, 500);
+        }
+
+        function enemyTurn() {
+            if(!battleState.active) return;
+            const excuse = enemyExcuses[Math.floor(Math.random()*enemyExcuses.length)];
+            logText(`${excuse}`);
+            
+            const enemyDiv = document.getElementById('enemy-fighter');
+            enemyDiv.classList.add('throw-anim');
+
+            // Projectile
+            throwProjectile(enemyDiv, document.getElementById('hero-fighter'), '🪨');
+
+            setTimeout(() => {
+                enemyDiv.classList.remove('throw-anim');
+                const dmg = 5 + Math.floor(Math.random()*10);
+                battleState.heroHP = Math.max(0, battleState.heroHP - dmg);
+                updateBattleUI();
+                
+                if(battleState.heroHP <= 0) endBattle(false);
+                else {
+                    disableBtns(false);
+                    generateAttackButtons();
+                }
+            }, 500);
+        }
+
+        function throwProjectile(from, to, icon) {
+            const p = document.createElement('div');
+            p.className = 'projectile';
+            p.innerText = icon;
+            p.style.display = 'block';
+            document.body.appendChild(p);
+
+            const startRect = from.getBoundingClientRect();
+            const endRect = to.getBoundingClientRect();
+
+            p.style.left = startRect.left + 30 + 'px';
+            p.style.top = startRect.top + 30 + 'px';
+
+            const deltaX = endRect.left - startRect.left;
+            const deltaY = e
