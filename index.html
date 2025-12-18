@@ -54,17 +54,21 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 67, 53, 0); }
         }
         
+        /* Stats Bar - Sauber, ohne Button */
         .stats-bar {
             display: flex; justify-content: space-around; padding: 10px;
             background: white; font-size: 0.9rem; font-weight: bold;
-            align-items: flex-start; 
+            align-items: center; 
         }
-        .stat-group { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
         .stat-item span { color: var(--google-green); }
+
+        /* Feedback Button - Jetzt im Pet Container */
         .feedback-btn {
-            margin-top: 5px; background-color: #f1f3f4; color: #5f6368;
-            border: 1px solid #dadce0; font-size: 0.65rem; padding: 4px 8px;
-            border-radius: 8px; cursor: pointer; font-weight: 600;
+            position: absolute; top: 10px; left: 10px;
+            background-color: rgba(255,255,255,0.8); color: #5f6368;
+            border: 1px solid #dadce0; font-size: 0.7rem; padding: 6px 12px;
+            border-radius: 16px; cursor: pointer; font-weight: 600; z-index: 40;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         /* --- Pet Area --- */
@@ -88,10 +92,8 @@
         }
 
         #pixel-pet {
-            transform: scale(var(--current-scale)); 
             z-index: 30; cursor: pointer;
-            transition: background-color 0.5s, transform 0.5s, opacity 0.5s; 
-            transform-origin: bottom center;
+            transition: transform 0.5s, opacity 0.5s; 
         }
 
         .visor {
@@ -127,13 +129,24 @@
         .spinning { animation: spin360 1s ease-in-out forwards; }
         @keyframes spin360 { 50% { transform: scale(calc(var(--current-scale) * 1.1)) rotateY(180deg); } 100% { transform: scale(var(--current-scale)) rotateY(360deg); } }
 
-        /* Age Items */
+        /* Age Items (Position UNTER dem Mund) */
         .age-item { position: absolute; pointer-events: none; transition: all 0.5s; display: none; z-index: 20; }
-        .age-baby { top: 130px; left: 50%; transform: translateX(-50%); font-size: 2.5rem; } 
-        .age-teen { bottom: -10px; right: -30px; font-size: 4rem; transform: rotate(-10deg); z-index: 5; } 
-        .age-adult { bottom: 0; left: -30px; font-size: 3.5rem; z-index: 20; } 
+        
+        .age-baby { 
+            top: 120px; /* Unter Mund (80px + Mundhöhe) */
+            left: 50%; transform: translateX(-50%); 
+            font-size: 2.5rem; 
+        } 
+        .age-teen { 
+            bottom: -10px; right: -30px; 
+            font-size: 4rem; transform: rotate(-10deg); z-index: 5; 
+        }
+        .age-adult { 
+            bottom: 0; left: -30px; 
+            font-size: 3.5rem; z-index: 20; 
+        }
 
-        /* Reward Items */
+        /* Reward Items (Startseite - 40% kleiner) */
         .reward-item { position: absolute; transition: all 0.5s; opacity: 0; cursor: pointer; font-size: 3rem; z-index: 20; }
         .reward-item.visible { opacity: 1; }
         #toy { bottom: 40px; right: 20px; transform: scale(0.6) rotate(-15deg); }
@@ -184,7 +197,11 @@
             transition: transform 0.2s; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
         }
         
-        #hero-fighter { transform-origin: bottom center; transform: scale(0.7); }
+        /* HERO FIGHTER: 100% Identisch zur Startseite (Klasse pixel-base) */
+        #hero-fighter { 
+            transform-origin: bottom center;
+            transform: scale(0.7); /* Nur leicht skaliert für Arena */
+        }
         
         #enemy-fighter { 
             width: 80px; height: 150px; border-radius: 18px; position: relative; 
@@ -207,6 +224,11 @@
         .throw-anim .arm.right { animation: throwArm 0.5s; }
         @keyframes throwArm { 0% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } 100% { transform: rotate(0deg); } }
 
+        /* ITEMS IN BATTLE (Positionskorrektur für Battle) */
+        #hero-fighter .age-baby { top: 120px; left: 50%; transform: translateX(-50%); font-size: 2.5rem; }
+        #hero-fighter .age-teen { bottom: -5px; right: -25px; font-size: 4rem; transform: rotate(-10deg); z-index: 20; }
+        #hero-fighter .age-adult { bottom: 0; left: -15px; font-size: 3.5rem; z-index: 20; }
+
         /* Battle Faces */
         #enemy-fighter .battle-face { position: absolute; top: 35px; left: 0; width: 100%; text-align: center; }
         #enemy-fighter .battle-eyes { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
@@ -218,16 +240,13 @@
             height: 0; border-bottom: 3px solid black; border-radius: 0; margin-top: 5px;
         }
 
+        /* Hero Battle Mouth - Identisch mit Startseite */
         #hero-mouth {
             width: 30px; height: 15px; border: 4px solid #3c4043;
             border-color: transparent transparent #3c4043 transparent; border-radius: 50%;
             position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
             transition: all 0.3s ease; opacity: 0.8;
         }
-
-        #hero-fighter .age-baby { top: 130px; left: 50%; transform: translateX(-50%); font-size: 2.5rem; }
-        #hero-fighter .age-teen { bottom: -5px; right: -25px; font-size: 4rem; transform: rotate(-10deg); z-index: 20; }
-        #hero-fighter .age-adult { bottom: 0; left: -15px; font-size: 3.5rem; z-index: 20; }
 
         .projectile { position: absolute; font-size: 2rem; z-index: 200; pointer-events: none; display: none; }
         .explosion { position: absolute; font-size: 3rem; z-index: 201; pointer-events: none; animation: boom 0.5s forwards; }
@@ -270,7 +289,7 @@
         }
         .icon { font-size: 1.5rem; }
 
-        /* Overlays (Modal, Login, Feedback) */
+        /* Overlays */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(5px); }
         .card { background: white; width: 85%; max-width: 400px; border-radius: 24px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out; position: relative; }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; }}
@@ -290,30 +309,9 @@
         .vote-btn:hover { transform: scale(1.2); }
         .info-text { text-align: left; font-size: 0.85rem; color: #444; line-height: 1.5; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e0e0e0; }
 
-        /* BLOCKER OVERLAY */
-        #blocker { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #202124; color: white; z-index: 99999; display: none;
-            flex-direction: column; justify-content: center; align-items: center; text-align: center; 
-        }
-
     </style>
 </head>
 <body>
-
-    <!-- SAFE DEVICE CHECK -->
-    <div id="blocker">
-        <h1 style="color:#ea4335; font-size:3rem;">⛔</h1>
-        <h2 style="margin:20px;">Exklusiv für Pixel</h2>
-        <p style="padding:0 20px;">Diese App funktioniert nur auf einem Google Pixel.</p>
-    </div>
-
-    <script>
-        var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        var isPixel = /Pixel/i.test(userAgent) || /Google/i.test(userAgent);
-        var debugMode = false; // VOR APK ERSTELLUNG AUF false SETZEN
-        if (!isPixel && !debugMode) { document.getElementById('blocker').style.display = 'flex'; throw new Error("Blocked"); }
-    </script>
 
     <!-- Login -->
     <div id="auth-overlay" class="overlay" style="display: flex;">
@@ -340,51 +338,60 @@
             </div>
             <div class="info-text">
                 <strong>Anleitung:</strong><br>
-                Pflege und kümmere dich jeden Tag um dein UWE. Erledige täglich mind. einmal die sechs Aufgaben.<br><br>
+                Pflege und kümmere dich jeden Tag um dein UWE - unseren Wissens Experten. 
+                Erledige jeden Tag mindestens einmal die sechs Aufgaben, welche du im unteren Feld findest: 
+                Gassi gehen, Füttern, etc.<br><br>
                 Besiege das Phone X im Battle und sichere dir extra Punkte. 
+                Details zur Gewinnauslosung folgen.
             </div>
             <button onclick="closeFeedback()" style="margin-top:15px; border:none; background:none; text-decoration:underline; color:#777; cursor:pointer;">Schließen</button>
         </div>
     </div>
 
-    <!-- App Content -->
     <header>
         <h1>UWE</h1>
         <button class="battle-float-btn" onclick="initBattle()">⚔️ BATTLE</button>
         <div class="stats-bar">
-            <div class="stat-group">
-                <div style="font-size:0.9rem;">Level: <span id="level-val">1</span></div>
-                <button class="feedback-btn" onclick="openFeedback()">Feedback & Anleitung</button>
-            </div>
-            <div class="stat-group" style="padding-top:5px;"><div>Laune: <span id="mood-val">😐</span></div></div>
-            <div class="stat-group" style="padding-top:5px;"><div>Tage: <span id="days-val">1</span></div></div>
+            <div class="stat-group"><div style="font-size:0.9rem;">Level: <span id="level-val">1</span></div></div>
+            <div class="stat-group"><div>Laune: <span id="mood-val">😐</span></div></div>
+            <div class="stat-group"><div>Tage: <span id="days-val">1</span></div></div>
         </div>
     </header>
 
     <div id="pet-container">
+        <!-- Feedback Button Oben Links im Bild -->
+        <button class="feedback-btn" onclick="openFeedback()">Feedback & Anleitung</button>
+
+        <!-- Belohnungs Items (Interaktiv) -->
         <div id="house" class="reward-item" onclick="interactHouse()">🏠</div>
         <div id="toy" class="reward-item" onclick="interactToy()">🧸</div> 
 
+        <!-- Pixel Character (Main) -->
         <div id="pixel-pet" class="pixel-base" onclick="petInteraction()">
             <div class="visor"><div class="lens"></div><div class="lens"></div><div class="lens" id="tele-lens" style="display:none;"></div></div>
             <div class="mouth"></div>
             <div class="g-logo">G</div>
+            <!-- Age Items (Main) -->
             <div id="main-age-baby" class="age-item age-baby">🍼</div>
             <div id="main-age-teen" class="age-item age-teen">🛹</div>
             <div id="main-age-adult" class="age-item age-adult">💼</div>
         </div>
         
+        <!-- BATTLE OVERLAY -->
         <div id="battle-overlay">
             <div class="battle-header">Feature Fight!</div>
             <button class="escape-btn" onclick="endBattle(false)">Flucht</button>
             
             <div class="battle-arena">
+                <!-- HERO (Pixel Base Class + Arms) -->
                 <div class="fighter-wrapper">
                     <div id="hero-fighter" class="pixel-base">
                         <div class="visor"><div class="lens"></div><div class="lens"></div></div>
                         <div class="mouth" id="hero-mouth"></div>
                         <div class="g-logo">G</div>
+                        
                         <div class="arm left"></div><div class="arm right"></div>
+                        
                         <div id="battle-age-baby" class="age-item age-baby">🍼</div>
                         <div id="battle-age-teen" class="age-item age-teen">🛹</div>
                         <div id="battle-age-adult" class="age-item age-adult">💼</div>
@@ -392,6 +399,7 @@
                     <div class="battery-container"><div id="hero-hp" class="battery-level"></div></div>
                 </div>
 
+                <!-- ENEMY -->
                 <div class="fighter-wrapper">
                     <div id="enemy-fighter" class="fighter">
                         <div class="battle-face">
@@ -420,6 +428,7 @@
         <button class="btn-action" onclick="startDailyTask('clean')"><span class="icon">🧼</span>Pflegen</button>
     </div>
 
+    <!-- QUESTIONS -->
     <div id="modal-overlay" class="overlay">
         <div class="card">
             <h3 id="category-title" style="color:var(--google-blue); margin-top:0;">Kategorie</h3>
@@ -455,6 +464,7 @@
             joinedDate: new Date().getTime(),
             inventory: { toy: false, house: false },
             dailyTasksCompleted: { feed:false, walk:false, pet:false, train:false, play:false, clean:false },
+            battleWonToday: false,
             lastPlayedDate: null
         };
 
@@ -473,7 +483,6 @@
             "Astrophotography": "Pixel greift aus dem All an! Phone X sieht nur Rauschen."
         };
         const battleFeatures = Object.keys(battleDescriptions);
-        
         const enemyExcuses = ["Phone X wird heiß...", "Phone X ruckelt...", "Phone X sucht Netz...", "Phone X Speicher voll...", "Phone X stürzt ab...", "Phone X Akku leer..."];
 
         const questions = {
@@ -488,45 +497,85 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV22');
+            const localUser = localStorage.getItem('uweStateUserFinal2');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
                 loadState();
             }
         }
+
+        // --- RESTORE LOGIC (CLOUD SAVE) ---
         function handleLogin(e) {
             e.preventDefault();
-            const fname = document.getElementById('fname').value;
-            const lname = document.getElementById('lname').value;
-            const storeid = document.getElementById('storeid').value;
-            if(!fname || !lname || !storeid) return;
-            
-            user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV22', JSON.stringify(user));
-            document.getElementById('auth-overlay').style.display = 'none';
-            state.joinedDate = new Date().getTime();
+            const fname = document.getElementById('fname').value.trim();
+            const lname = document.getElementById('lname').value.trim();
+            const storeid = document.getElementById('storeid').value.trim();
+
+            if(!fname || !lname || !storeid) { alert("Bitte alle Felder ausfüllen!"); return; }
+
+            const btn = document.querySelector('#auth-overlay .primary-btn');
+            btn.innerText = "Lade...";
+            btn.disabled = true;
+
+            const docId = `${storeid}_${lname}`;
+
+            // Check Firebase
+            if (db) {
+                db.collection('users').doc(docId).get().then((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        user = { fname: data.fname, lname: data.lname, storeid: data.storeid };
+                        if (data.state) state = data.state; // Restore state
+                        else state.joinedDate = new Date().getTime(); // Fallback if user exists but no state
+                    } else {
+                        // New User
+                        user = { fname, lname, storeid };
+                        state.joinedDate = new Date().getTime();
+                        db.collection('users').doc(docId).set({...user, joined: state.joinedDate});
+                    }
+                    finalizeLogin();
+                }).catch((err) => {
+                    // Offline fallback
+                    user = { fname, lname, storeid };
+                    state.joinedDate = new Date().getTime();
+                    finalizeLogin();
+                });
+            } else {
+                // No DB fallback
+                user = { fname, lname, storeid };
+                state.joinedDate = new Date().getTime();
+                finalizeLogin();
+            }
+        }
+
+        function finalizeLogin() {
+            localStorage.setItem('uweStateUserFinal2', JSON.stringify(user));
             saveState();
-            if(db) db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate});
+            document.getElementById('auth-overlay').style.display = 'none';
             updateVisuals();
         }
+
         function loadState() {
-            const saved = localStorage.getItem('uweStateV22');
+            const saved = localStorage.getItem('uweStateFinal2');
             if (saved) state = JSON.parse(saved);
+            
             const today = new Date().toISOString().slice(0,10);
             if (state.lastPlayedDate !== today) {
                 state.dailyTasksCompleted = { feed:false, walk:false, pet:false, train:false, play:false, clean:false };
+                state.battleWonToday = false;
                 state.lastPlayedDate = today;
                 saveState();
             }
             updateVisuals();
         }
+
         function saveState() {
-            localStorage.setItem('uweStateV22', JSON.stringify(state));
-            if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state});
+            localStorage.setItem('uweStateFinal2', JSON.stringify(state));
+            if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state}).catch(e=>{});
         }
 
-        // --- Interaction Logic ---
+        // --- UI & Interaction ---
         function openFeedback() { document.getElementById('feedback-overlay').style.display = 'flex'; }
         function closeFeedback() { document.getElementById('feedback-overlay').style.display = 'none'; }
         function submitFeedback(r) { showToast("Danke!"); setTimeout(closeFeedback, 1000); if(db) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({feedback:r}); }
@@ -534,22 +583,19 @@
         function interactToy() {
             const toy = document.getElementById('toy');
             toy.classList.add('toy-cuddle');
-            
-            const petContainer = document.getElementById('pet-container');
+            const c = document.getElementById('pet-container');
             for(let i=0; i<5; i++) {
                 const h = document.createElement('div'); h.className='heart-anim'; h.innerText='❤️';
                 h.style.left = (40 + Math.random()*20) + '%'; h.style.top = '50%'; h.style.animationDelay = (i*0.3)+'s';
-                petContainer.appendChild(h); setTimeout(()=>h.remove(), 2000);
+                c.appendChild(h); setTimeout(()=>h.remove(), 2000);
             }
-            const pet = document.getElementById('pixel-pet');
-            pet.classList.add('spinning'); 
-            setTimeout(() => { toy.classList.remove('toy-cuddle'); pet.classList.remove('spinning'); }, 2500);
+            document.getElementById('pixel-pet').classList.add('happy'); 
+            setTimeout(() => { toy.classList.remove('toy-cuddle'); document.getElementById('pixel-pet').classList.remove('happy'); }, 2500);
         }
 
         function interactHouse() {
-            const pet = document.getElementById('pixel-pet');
-            pet.classList.add('enter-house');
-            setTimeout(() => { pet.classList.remove('enter-house'); }, 3000);
+            document.getElementById('pixel-pet').classList.add('enter-house');
+            setTimeout(() => { document.getElementById('pixel-pet').classList.remove('enter-house'); }, 3000);
         }
 
         function calculateDays() { return Math.floor((new Date().getTime() - state.joinedDate) / (86400000)) + 1; }
@@ -563,7 +609,7 @@
             document.getElementById('mood-val').innerText = mood;
 
             let scale = 0.6;
-            // Hide all first
+            // Hide items
             document.getElementById('main-age-baby').style.display = 'none';
             document.getElementById('main-age-teen').style.display = 'none';
             document.getElementById('main-age-adult').style.display = 'none';
@@ -621,7 +667,7 @@
             if(i===a) {
                 b.classList.add('correct'); fb.innerText="Richtig!"; fb.style.color="green";
                 state.dailyTasksCompleted[cat]=true; 
-                checkLevelUp(); // Check immediately
+                checkLevelUp(); 
             } else {
                 b.classList.add('wrong'); fb.innerText="Falsch."; fb.style.color="red"; state.happiness = Math.max(0, state.happiness-10);
             }
@@ -634,8 +680,14 @@
             
             if (allTasks) {
                 if(!state.inventory.toy) { state.inventory.toy=true; showToast("Spielzeug freigeschaltet!"); }
-                // Nur aufleveln, wenn tasks fertig UND battle gewonnen
-                // Da Battle nicht hier ist, prüfen wir nur Inventory
+                
+                // Level Up Logic: All Tasks AND Battle Won
+                if (state.battleWonToday) {
+                    state.level++;
+                    state.battleWonToday = false; 
+                    showToast("🎉 LEVEL UP!");
+                    if(state.level >= 3 && !state.inventory.house) { state.inventory.house=true; showToast("Hütte freigeschaltet!"); }
+                }
             }
             saveState();
         }
@@ -727,5 +779,4 @@
         function throwProjectile(from, to, icon) {
             const p = document.createElement('div'); p.className = 'projectile'; p.innerText = icon; p.style.display = 'block'; document.body.appendChild(p);
             const start = from.getBoundingClientRect(); const end = to.getBoundingClientRect();
-            p.style.left = start.left+30+'px'; p.style.top = start.top+30+'px';
-            p.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${end.left-start.left}px, ${end.top-start.top}px) scale(
+            p.style.left = start.left+30
