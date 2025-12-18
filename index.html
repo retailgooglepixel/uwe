@@ -129,7 +129,7 @@
         .age-item { position: absolute; pointer-events: none; transition: all 0.5s; display: none; z-index: 20; }
         
         .age-baby { 
-            top: 130px; /* Unter Mund */
+            top: 130px; 
             left: 50%; transform: translateX(-50%); 
             font-size: 2.5rem; 
         } 
@@ -208,7 +208,6 @@
         }
         #hero-fighter .arm.left { background-color: var(--pixel-body); left: -25px; border: 3px solid #3c4043; }
         #hero-fighter .arm.right { background-color: var(--pixel-body); right: -25px; border: 3px solid #3c4043; }
-        
         #enemy-fighter .arm { width: 20px; height: 50px; top: 50px; }
         #enemy-fighter .arm.left { background: #d0d0d0; left: -15px; border: 2px solid #111; }
         #enemy-fighter .arm.right { background: #d0d0d0; right: -15px; border: 2px solid #111; }
@@ -284,7 +283,6 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(5px); }
         .card { background: white; width: 85%; max-width: 400px; border-radius: 24px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out; position: relative; }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; }}
-        
         .question-text { font-size: 1.1rem; font-weight: 500; line-height: 1.4; margin-bottom: 20px; }
         .option-btn { display: block; width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #f1f3f4; border-radius: 12px; background: white; color: var(--text-color); font-size: 1rem; cursor: pointer; font-weight: 500; }
         .option-btn.correct { background: var(--google-green); color: white; border-color: var(--google-green); }
@@ -294,7 +292,6 @@
         .input-group { margin-bottom: 10px; text-align: left; }
         .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;}
         
-        /* WICHTIG: Button Type ist BUTTON, nicht SUBMIT. Verhindert Reload. */
         .primary-btn { 
             width: 100%; padding: 12px; background: var(--google-blue); color: white; 
             border: none; border-radius: 8px; font-weight: bold; cursor: pointer; 
@@ -319,7 +316,7 @@
                 <div class="input-group"><label>Vorname</label><input type="text" id="fname" required></div>
                 <div class="input-group"><label>Nachname</label><input type="text" id="lname" required></div>
                 <div class="input-group"><label>Store ID</label><input type="number" id="storeid" required></div>
-                <!-- ONCLICK EVENT STATT SUBMIT -->
+                <!-- ONCLICK EVENT AUF performLogin -->
                 <button type="button" class="primary-btn" onclick="performLogin()">Starten</button>
             </div>
         </div>
@@ -361,7 +358,7 @@
     </header>
 
     <div id="pet-container">
-        <!-- Belohnungs Items (Interaktiv) -->
+        <!-- Belohnungs Items -->
         <div id="house" class="reward-item" onclick="interactHouse()">🏠</div>
         <div id="toy" class="reward-item" onclick="interactToy()">🧸</div> 
 
@@ -389,7 +386,7 @@
                         <div class="mouth" id="hero-mouth"></div>
                         <div class="g-logo">G</div>
                         <div class="arm left"></div><div class="arm right"></div>
-                        
+                        <!-- Battle Age Items -->
                         <div id="battle-age-baby" class="age-item age-baby">🍼</div>
                         <div id="battle-age-teen" class="age-item age-teen">🛹</div>
                         <div id="battle-age-adult" class="age-item age-adult">💼</div>
@@ -466,6 +463,7 @@
             lastPlayedDate: null
         };
 
+        // ... Battle Descriptions ...
         const battleDescriptions = {
             "Magic Eraser": "Pixel radiert Probleme weg! Phone X findet seine Daten nicht mehr.",
             "Best Take": "Pixel tauscht Gesichter aus! Phone X ist verwirrt vor dem Spiegel.",
@@ -495,7 +493,7 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV30');
+            const localUser = localStorage.getItem('uweStateUserV24');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -503,7 +501,7 @@
             }
         }
 
-        // --- SAFE LOGIN FUNCTION ---
+        // --- FIXED LOGIN LOGIC: FUNCTION MATCHES ONCLICK ---
         function performLogin() {
             const fname = document.getElementById('fname').value.trim();
             const lname = document.getElementById('lname').value.trim();
@@ -515,18 +513,20 @@
             }
 
             user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV30', JSON.stringify(user));
+            localStorage.setItem('uweStateUserV24', JSON.stringify(user));
+            
             document.getElementById('auth-overlay').style.display = 'none';
             
-            // Initial State or Load existing
-            loadState(); 
-            if(!state.joinedDate) {
+            // Check State
+            const savedState = localStorage.getItem('uweStateV24');
+            if(savedState) {
+                state = JSON.parse(savedState);
+            } else {
                 state.joinedDate = new Date().getTime();
                 saveState();
             }
             
             if(db) {
-                // Sync with Cloud
                 db.collection('users').doc(`${storeid}_${lname}`).get().then(doc => {
                     if(doc.exists && doc.data().state) {
                         state = doc.data().state;
@@ -543,7 +543,7 @@
         }
 
         function loadState() {
-            const saved = localStorage.getItem('uweStateV30');
+            const saved = localStorage.getItem('uweStateV24');
             if (saved) state = JSON.parse(saved);
             
             const today = new Date().toISOString().slice(0,10);
@@ -556,7 +556,7 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateV30', JSON.stringify(state));
+            localStorage.setItem('uweStateV24', JSON.stringify(state));
             if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state}).catch(e=>{});
         }
 
@@ -579,9 +579,8 @@
         }
 
         function interactHouse() {
-            const pet = document.getElementById('pixel-pet');
-            pet.classList.add('enter-house');
-            setTimeout(() => { pet.classList.remove('enter-house'); }, 3000);
+            document.getElementById('pixel-pet').classList.add('enter-house');
+            setTimeout(() => { document.getElementById('pixel-pet').classList.remove('enter-house'); }, 3000);
         }
 
         function calculateDays() { return Math.floor((new Date().getTime() - state.joinedDate) / (86400000)) + 1; }
@@ -624,6 +623,7 @@
             const pet = document.getElementById('pixel-pet');
             if (pet.classList.contains('spinning')) return;
             pet.classList.add('spinning');
+            
             const c = document.getElementById('pet-container');
             for(let i=0; i<3; i++) {
                 const h = document.createElement('div'); h.className='heart-anim'; h.innerText='❤️';
@@ -723,12 +723,4 @@
                 heroMouth.style.height = "0"; heroMouth.style.borderRadius = "0"; heroMouth.style.borderBottom = "3px solid black";
             }
             if(battleState.enemyHP < 40) {
-                enemyMouth.style.height = "10px"; enemyMouth.style.borderRadius = "50% 50% 0 0"; enemyMouth.style.borderTop = "3px solid black"; enemyMouth.style.borderBottom = "none";
-            } else {
-                enemyMouth.style.height = "0"; enemyMouth.style.borderBottom = "3px solid black";
-            }
-        }
-
-        function performTurn(feat) {
-            if(!battleState.active) return;
-            logText(`Pixel nutzt ${feat}!\n${battleDescriptions[feat]}
+                enemyMouth.style.height = "10px"; e
