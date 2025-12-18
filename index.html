@@ -21,7 +21,7 @@
             --text-color: #202124;
             --pixel-body: #6996D3;
             --pixel-cam-bar: #1F1F1F;
-            --current-scale: 0.6; 
+            --current-scale: 0.6; /* Start-Skalierung */
         }
 
         body {
@@ -74,8 +74,8 @@
             overflow: hidden; perspective: 1000px;
         }
 
-        /* --- SHARED PIXEL DESIGN CLASS --- */
-        /* Dies definiert das Aussehen für Startseite UND Battle */
+        /* --- SHARED PIXEL DESIGN CLASS (DAS HERZSTÜCK) --- */
+        /* Diese Klasse definiert das Aussehen für Startseite UND Battle */
         .pixel-base {
             width: 130px; height: 250px; 
             background-color: var(--pixel-body);
@@ -84,14 +84,15 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             transition: background-color 0.5s;
             transform-style: preserve-3d;
+            /* WICHTIG: Beide nutzen die globale Skalierung */
+            transform: scale(var(--current-scale)); 
+            transform-origin: bottom center;
         }
 
-        /* Startseiten Pixel Positionierung */
+        /* Zusätzliche ID für Startseite für Klick-Events */
         #pixel-pet {
-            transform: scale(var(--current-scale)); 
             z-index: 30; cursor: pointer;
-            transition: background-color 0.5s, transform 0.5s, opacity 0.5s; 
-            transform-origin: bottom center;
+            transition: transform 0.5s, opacity 0.5s; 
         }
 
         .visor {
@@ -127,15 +128,26 @@
         .spinning { animation: spin360 1s ease-in-out forwards; }
         @keyframes spin360 { 50% { transform: scale(calc(var(--current-scale) * 1.1)) rotateY(180deg); } 100% { transform: scale(var(--current-scale)) rotateY(360deg); } }
 
-        /* Age Items (Wachstums Items) */
+        /* --- Age Items (Positionierung korrigiert) --- */
+        /* Gilt für BEIDE Pixel (Start & Battle), da beide .pixel-base haben */
         .age-item { position: absolute; pointer-events: none; transition: all 0.5s; display: none; z-index: 20; }
         
-        /* Positionierung im Pixel Container */
-        .age-baby { top: 95px; left: 50%; transform: translateX(-50%); font-size: 2rem; } /* Schnuller */
-        .age-teen { bottom: -10px; right: -40px; font-size: 4rem; transform: rotate(-10deg); z-index: 5; } /* Skateboard */
-        .age-adult { bottom: 0; left: -30px; font-size: 3.5rem; z-index: 20; } /* Koffer */
+        /* Korrigierte Positionen: */
+        .age-baby { 
+            top: 110px; /* Tiefer gesetzt, damit es im Mund ist, nicht in den Augen */
+            left: 50%; transform: translateX(-50%) rotate(-45deg); 
+            font-size: 2.5rem; 
+        } 
+        .age-teen { 
+            bottom: -10px; right: -30px; 
+            font-size: 4rem; transform: rotate(-10deg); z-index: 5; 
+        }
+        .age-adult { 
+            bottom: 0; left: -30px; 
+            font-size: 3.5rem; z-index: 20; 
+        }
 
-        /* Reward Items (Interaktiv) */
+        /* Reward Items (Startseite) */
         .reward-item { position: absolute; transition: all 0.5s; opacity: 0; cursor: pointer; font-size: 3rem; z-index: 20; }
         .reward-item.visible { opacity: 1; }
         #toy { bottom: 40px; right: 20px; transform: scale(0.6) rotate(-15deg); }
@@ -181,16 +193,12 @@
         
         .fighter-wrapper { display: flex; flex-direction: column; align-items: center; width: 40%; position: relative; }
         
-        /* Fighter Base */
-        .fighter { 
-            width: 80px; height: 150px; border-radius: 18px; position: relative; 
-            transition: transform 0.2s; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
-        }
+        /* FIGHTER CONFIG */
         
-        /* HERO FIGHTER: Nutzt jetzt pixel-base Klasse für identisches Aussehen */
+        /* HERO: Nutzt .pixel-base, daher 100% identisch. 
+           Wir müssen nur die ID selektieren für spezifische Battle-Dinge (Arme) */
         #hero-fighter { 
-            transform-origin: bottom center;
-            transform: scale(0.7); /* Leicht kleiner für Arena */
+            /* Erbt alles von .pixel-base */
         }
         
         #enemy-fighter { 
@@ -198,16 +206,17 @@
             background: linear-gradient(135deg, #d0d0d0, #a0a0a0); 
             border: 4px solid #111; 
             box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
+            /* Enemy hat feste Größe */
         }
 
-        /* ARME */
+        /* ARMS - Nur im Battle sichtbar */
         .arm {
             width: 25px; height: 70px; position: absolute; top: 90px; border-radius: 12px;
-            transform-origin: top center; transition: transform 0.2s;
+            transform-origin: top center; transition: transform 0.2s; z-index: -1; /* Hinter den Körper */
         }
-        /* Hero Arms matching body */
-        #hero-fighter .arm.left { background-color: var(--pixel-body); left: -25px; border: 3px solid #3c4043; }
-        #hero-fighter .arm.right { background-color: var(--pixel-body); right: -25px; border: 3px solid #3c4043; }
+        /* Hero Arms match pixel body variable */
+        #hero-fighter .arm.left { background-color: var(--pixel-body); left: -20px; border: 3px solid #3c4043; }
+        #hero-fighter .arm.right { background-color: var(--pixel-body); right: -20px; border: 3px solid #3c4043; }
         
         /* Enemy Arms */
         #enemy-fighter .arm { width: 20px; height: 50px; top: 50px; }
@@ -216,11 +225,6 @@
 
         .throw-anim .arm.right { animation: throwArm 0.5s; }
         @keyframes throwArm { 0% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } 100% { transform: rotate(0deg); } }
-
-        /* ITEMS IM BATTLE (Angepasst an Hero Scale) */
-        #hero-fighter .age-baby { top: 55px; left: 50%; transform: translateX(-50%); font-size: 1.2rem; }
-        #hero-fighter .age-teen { bottom: -5px; right: -25px; font-size: 2.5rem; transform: rotate(-10deg); z-index: 20; }
-        #hero-fighter .age-adult { bottom: 0; left: -15px; font-size: 2rem; z-index: 20; }
 
         /* Battle Faces */
         #enemy-fighter .battle-face { position: absolute; top: 35px; left: 0; width: 100%; text-align: center; }
@@ -379,10 +383,10 @@
             </div>
             <div class="mouth"></div>
             <div class="g-logo">G</div>
-            <!-- Age Items (Main) -->
-            <div id="main-age-baby" class="age-item age-baby">🍼</div>
-            <div id="main-age-teen" class="age-item age-teen">🛹</div>
-            <div id="main-age-adult" class="age-item age-adult">💼</div>
+            <!-- Age Items (Inside Pixel -> Scales with pixel) -->
+            <div id="age-baby" class="age-item age-baby">🍼</div>
+            <div id="age-teen" class="age-item age-teen">🛹</div>
+            <div id="age-adult" class="age-item age-adult">💼</div>
         </div>
         
         <!-- BATTLE OVERLAY -->
@@ -391,8 +395,9 @@
             <button class="escape-btn" onclick="endBattle(false)">Flucht</button>
             
             <div class="battle-arena">
-                <!-- HERO (Pixel Base Class for Identical Look) -->
+                <!-- HERO (Pixel Base Class for Identical Look + Arms) -->
                 <div class="fighter-wrapper">
+                    <!-- HERO: Uses .pixel-base just like main pet -->
                     <div id="hero-fighter" class="pixel-base">
                         <div class="visor">
                             <div class="lens"></div><div class="lens"></div>
@@ -403,7 +408,7 @@
                         <!-- Battle Arms -->
                         <div class="arm left"></div><div class="arm right"></div>
                         
-                        <!-- Battle Age Items (Hidden by default, shown by JS) -->
+                        <!-- Battle Age Items (Clones of main items) -->
                         <div id="battle-age-baby" class="age-item age-baby">🍼</div>
                         <div id="battle-age-teen" class="age-item age-teen">🛹</div>
                         <div id="battle-age-adult" class="age-item age-adult">💼</div>
@@ -491,10 +496,10 @@
             "Audio Eraser": "Pixel filtert den Lärm. Phone X hört seine eigenen Gedanken nicht.",
             "Circle to Search": "Pixel kreist den Gegner ein! Phone X fühlt sich umzingelt.",
             "Call Screen": "Pixel blockt den Angriff! Phone X hängt in der Warteschleife.",
-            "Live Translate": "Pixel spricht alle Sprachen. Phone X braucht ein Wörterbuch.",
-            "Real Tone": "Pixel zeigt wahre Farben. Phone X sieht blass aus.",
-            "Video Boost": "Pixel optimiert das Video. Phone X ruckelt nur noch.",
-            "Astrophotography": "Pixel fotografiert Sterne. Phone X sieht nur Rauschen."
+            "Live Translate": "Pixel übersetzt den Schaden!",
+            "Real Tone": "Pixel zeigt wahre Stärke!",
+            "Video Boost": "Pixel optimiert die Leistung!",
+            "Astrophotography": "Pixel greift aus dem All an!"
         };
         const battleFeatures = Object.keys(battleDescriptions);
         
@@ -534,7 +539,7 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV18');
+            const localUser = localStorage.getItem('uweStateUserFinal');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -547,7 +552,7 @@
             const lname = document.getElementById('lname').value;
             const storeid = document.getElementById('storeid').value;
             user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV18', JSON.stringify(user));
+            localStorage.setItem('uweStateUserFinal', JSON.stringify(user));
             document.getElementById('auth-overlay').style.display = 'none';
             state.joinedDate = new Date().getTime();
             saveState();
@@ -555,7 +560,7 @@
             updateVisuals();
         }
         function loadState() {
-            const saved = localStorage.getItem('uweStateV18');
+            const saved = localStorage.getItem('uweStateFinal');
             if (saved) state = JSON.parse(saved);
             const today = new Date().toISOString().slice(0,10);
             if (state.lastPlayedDate !== today) {
@@ -566,7 +571,7 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateV18', JSON.stringify(state));
+            localStorage.setItem('uweStateFinal', JSON.stringify(state));
             if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state});
         }
 
@@ -616,29 +621,27 @@
             document.getElementById('mood-val').innerText = mood;
 
             let scale = 0.6;
-            // Hide all age items on MAIN screen first
-            document.getElementById('main-age-baby').style.display = 'none';
-            document.getElementById('main-age-teen').style.display = 'none';
-            document.getElementById('main-age-adult').style.display = 'none';
+            // Hide all age items on MAIN screen
+            document.getElementById('age-baby').style.display = 'none';
+            document.getElementById('age-teen').style.display = 'none';
+            document.getElementById('age-adult').style.display = 'none';
 
             let ageGroup = 'baby';
             if (days <= 3) { 
                 scale = 0.6; ageGroup = 'baby'; 
-                document.getElementById('main-age-baby').style.display = 'block'; 
+                document.getElementById('age-baby').style.display = 'block'; 
             }
             else if (days <= 14) { 
                 scale = 0.85; ageGroup = 'teen'; 
-                document.getElementById('main-age-teen').style.display = 'block'; 
+                document.getElementById('age-teen').style.display = 'block'; 
             }
             else { 
                 scale = 1.0; ageGroup = 'adult'; 
-                document.getElementById('main-age-adult').style.display = 'block'; 
+                document.getElementById('age-adult').style.display = 'block'; 
             }
             
-            // Set global scale for main pixel
+            // Set global scale for main pixel & battle
             document.documentElement.style.setProperty('--current-scale', scale);
-            
-            // SAVE AGE GROUP TO DATA ATTRIBUTE FOR BATTLE
             document.documentElement.setAttribute('data-age-group', ageGroup);
 
             let levelLabel = "1 (Pixel 10)";
