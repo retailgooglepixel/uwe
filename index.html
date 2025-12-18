@@ -57,14 +57,18 @@
         .stats-bar {
             display: flex; justify-content: space-around; padding: 10px;
             background: white; font-size: 0.9rem; font-weight: bold;
-            align-items: flex-start; 
+            align-items: center; 
         }
         .stat-group { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
         .stat-item span { color: var(--google-green); }
+        
+        /* Feedback Button im Pet Container */
         .feedback-btn {
-            margin-top: 5px; background-color: #f1f3f4; color: #5f6368;
-            border: 1px solid #dadce0; font-size: 0.65rem; padding: 4px 8px;
-            border-radius: 8px; cursor: pointer; font-weight: 600;
+            position: absolute; top: 10px; left: 10px;
+            background-color: rgba(255,255,255,0.8); color: #5f6368;
+            border: 1px solid #dadce0; font-size: 0.7rem; padding: 6px 12px;
+            border-radius: 16px; cursor: pointer; font-weight: 600; z-index: 40;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         /* --- Pet Area --- */
@@ -125,11 +129,11 @@
         .spinning { animation: spin360 1s ease-in-out forwards; }
         @keyframes spin360 { 50% { transform: scale(calc(var(--current-scale) * 1.1)) rotateY(180deg); } 100% { transform: scale(var(--current-scale)) rotateY(360deg); } }
 
-        /* Age Items (Position UNTER dem Mund) */
+        /* Age Items (Position UNTER dem Mund ~130px) */
         .age-item { position: absolute; pointer-events: none; transition: all 0.5s; display: none; z-index: 20; }
         
         .age-baby { 
-            top: 130px; 
+            top: 130px; /* Unter Mund */
             left: 50%; transform: translateX(-50%); 
             font-size: 2.5rem; 
         } 
@@ -193,7 +197,11 @@
             transition: transform 0.2s; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
         }
         
-        #hero-fighter { transform-origin: bottom center; transform: scale(0.7); }
+        /* HERO FIGHTER: Nutzt Skalierung, aber ist Kopie der Klasse */
+        #hero-fighter { 
+            transform-origin: bottom center;
+            transform: scale(0.7); 
+        }
         
         #enemy-fighter { 
             width: 80px; height: 150px; border-radius: 18px; position: relative; 
@@ -208,6 +216,7 @@
         }
         #hero-fighter .arm.left { background-color: var(--pixel-body); left: -25px; border: 3px solid #3c4043; }
         #hero-fighter .arm.right { background-color: var(--pixel-body); right: -25px; border: 3px solid #3c4043; }
+        
         #enemy-fighter .arm { width: 20px; height: 50px; top: 50px; }
         #enemy-fighter .arm.left { background: #d0d0d0; left: -15px; border: 2px solid #111; }
         #enemy-fighter .arm.right { background: #d0d0d0; right: -15px; border: 2px solid #111; }
@@ -215,7 +224,7 @@
         .throw-anim .arm.right { animation: throwArm 0.5s; }
         @keyframes throwArm { 0% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } 100% { transform: rotate(0deg); } }
 
-        /* ITEMS IN BATTLE */
+        /* ITEMS IN BATTLE (Positions angepasst an Battle Scale) */
         #hero-fighter .age-baby { top: 130px; left: 50%; transform: translateX(-50%); font-size: 2.5rem; }
         #hero-fighter .age-teen { bottom: -5px; right: -25px; font-size: 4rem; transform: rotate(-10deg); z-index: 20; }
         #hero-fighter .age-adult { bottom: 0; left: -15px; font-size: 3.5rem; z-index: 20; }
@@ -283,6 +292,7 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(5px); }
         .card { background: white; width: 85%; max-width: 400px; border-radius: 24px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out; position: relative; }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; }}
+        
         .question-text { font-size: 1.1rem; font-weight: 500; line-height: 1.4; margin-bottom: 20px; }
         .option-btn { display: block; width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #f1f3f4; border-radius: 12px; background: white; color: var(--text-color); font-size: 1rem; cursor: pointer; font-weight: 500; }
         .option-btn.correct { background: var(--google-green); color: white; border-color: var(--google-green); }
@@ -291,13 +301,7 @@
         #auth-overlay { background: rgba(0,0,0,0.95); z-index: 1000; }
         .input-group { margin-bottom: 10px; text-align: left; }
         .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;}
-        
-        .primary-btn { 
-            width: 100%; padding: 12px; background: var(--google-blue); color: white; 
-            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; 
-            font-size: 1.1rem;
-        }
-        .primary-btn:active { transform: scale(0.98); }
+        .primary-btn { width: 100%; padding: 12px; background: var(--google-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
         .vote-container { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
         .vote-btn { font-size: 2.2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s; user-select: none;}
@@ -316,8 +320,8 @@
                 <div class="input-group"><label>Vorname</label><input type="text" id="fname" required></div>
                 <div class="input-group"><label>Nachname</label><input type="text" id="lname" required></div>
                 <div class="input-group"><label>Store ID</label><input type="number" id="storeid" required></div>
-                <!-- ONCLICK EVENT AUF performLogin -->
-                <button type="button" class="primary-btn" onclick="performLogin()">Starten</button>
+                <!-- WICHTIG: Button ruft startApp() auf -->
+                <button type="button" class="primary-btn" onclick="startApp()">Starten</button>
             </div>
         </div>
     </div>
@@ -350,15 +354,17 @@
         <div class="stats-bar">
             <div class="stat-group">
                 <div style="font-size:0.9rem;">Level: <span id="level-val">1</span></div>
-                <button class="feedback-btn" onclick="openFeedback()">Feedback & Anleitung</button>
             </div>
-            <div class="stat-group" style="padding-top:5px;"><div>Laune: <span id="mood-val">😐</span></div></div>
-            <div class="stat-group" style="padding-top:5px;"><div>Tage: <span id="days-val">1</span></div></div>
+            <div class="stat-group"><div>Laune: <span id="mood-val">😐</span></div></div>
+            <div class="stat-group"><div>Tage: <span id="days-val">1</span></div></div>
         </div>
     </header>
 
     <div id="pet-container">
-        <!-- Belohnungs Items -->
+        <!-- Feedback Button Button im Bild -->
+        <button class="feedback-btn" onclick="openFeedback()">Feedback & Anleitung</button>
+
+        <!-- Belohnungs Items (Interaktiv) -->
         <div id="house" class="reward-item" onclick="interactHouse()">🏠</div>
         <div id="toy" class="reward-item" onclick="interactToy()">🧸</div> 
 
@@ -367,7 +373,7 @@
             <div class="visor"><div class="lens"></div><div class="lens"></div><div class="lens" id="tele-lens" style="display:none;"></div></div>
             <div class="mouth"></div>
             <div class="g-logo">G</div>
-            <!-- Age Items -->
+            <!-- Age Items (Main) -->
             <div id="main-age-baby" class="age-item age-baby">🍼</div>
             <div id="main-age-teen" class="age-item age-teen">🛹</div>
             <div id="main-age-adult" class="age-item age-adult">💼</div>
@@ -379,7 +385,7 @@
             <button class="escape-btn" onclick="endBattle(false)">Flucht</button>
             
             <div class="battle-arena">
-                <!-- HERO -->
+                <!-- HERO (Pixel Base + Arms) -->
                 <div class="fighter-wrapper">
                     <div id="hero-fighter" class="pixel-base">
                         <div class="visor"><div class="lens"></div><div class="lens"></div></div>
@@ -463,7 +469,6 @@
             lastPlayedDate: null
         };
 
-        // ... Battle Descriptions ...
         const battleDescriptions = {
             "Magic Eraser": "Pixel radiert Probleme weg! Phone X findet seine Daten nicht mehr.",
             "Best Take": "Pixel tauscht Gesichter aus! Phone X ist verwirrt vor dem Spiegel.",
@@ -493,7 +498,7 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV24');
+            const localUser = localStorage.getItem('uweStateUserFinalFixed');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -501,8 +506,8 @@
             }
         }
 
-        // --- FIXED LOGIN LOGIC: FUNCTION MATCHES ONCLICK ---
-        function performLogin() {
+        // --- LOGIN FUNCTION (Matches HTML Button) ---
+        function startApp() {
             const fname = document.getElementById('fname').value.trim();
             const lname = document.getElementById('lname').value.trim();
             const storeid = document.getElementById('storeid').value.trim();
@@ -513,37 +518,24 @@
             }
 
             user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV24', JSON.stringify(user));
-            
+            localStorage.setItem('uweStateUserFinalFixed', JSON.stringify(user));
             document.getElementById('auth-overlay').style.display = 'none';
             
-            // Check State
-            const savedState = localStorage.getItem('uweStateV24');
-            if(savedState) {
-                state = JSON.parse(savedState);
-            } else {
+            // State Restore logic
+            loadState(); 
+            if(!state.joinedDate) {
                 state.joinedDate = new Date().getTime();
                 saveState();
             }
             
-            if(db) {
-                db.collection('users').doc(`${storeid}_${lname}`).get().then(doc => {
-                    if(doc.exists && doc.data().state) {
-                        state = doc.data().state;
-                        saveState();
-                        updateVisuals();
-                    } else {
-                        db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate}, {merge:true});
-                    }
-                });
-            }
-            
+            // Sync
+            if(db) db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate}, {merge:true});
             updateVisuals();
             showToast("Willkommen " + fname + "!");
         }
 
         function loadState() {
-            const saved = localStorage.getItem('uweStateV24');
+            const saved = localStorage.getItem('uweStateFinalFixed');
             if (saved) state = JSON.parse(saved);
             
             const today = new Date().toISOString().slice(0,10);
@@ -556,7 +548,7 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateV24', JSON.stringify(state));
+            localStorage.setItem('uweStateFinalFixed', JSON.stringify(state));
             if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state}).catch(e=>{});
         }
 
@@ -594,7 +586,7 @@
             document.getElementById('mood-val').innerText = mood;
 
             let scale = 0.6;
-            // Hide items
+            // Hide all first
             document.getElementById('main-age-baby').style.display = 'none';
             document.getElementById('main-age-teen').style.display = 'none';
             document.getElementById('main-age-adult').style.display = 'none';
@@ -623,7 +615,6 @@
             const pet = document.getElementById('pixel-pet');
             if (pet.classList.contains('spinning')) return;
             pet.classList.add('spinning');
-            
             const c = document.getElementById('pet-container');
             for(let i=0; i<3; i++) {
                 const h = document.createElement('div'); h.className='heart-anim'; h.innerText='❤️';
@@ -723,4 +714,43 @@
                 heroMouth.style.height = "0"; heroMouth.style.borderRadius = "0"; heroMouth.style.borderBottom = "3px solid black";
             }
             if(battleState.enemyHP < 40) {
-                enemyMouth.style.height = "10px"; e
+                enemyMouth.style.height = "10px"; enemyMouth.style.borderRadius = "50% 50% 0 0"; enemyMouth.style.borderTop = "3px solid black"; enemyMouth.style.borderBottom = "none";
+            } else {
+                enemyMouth.style.height = "0"; enemyMouth.style.borderBottom = "3px solid black";
+            }
+        }
+
+        function performTurn(feat) {
+            if(!battleState.active) return;
+            logText(`Pixel nutzt ${feat}!\n${battleDescriptions[feat]}`);
+            const heroDiv = document.getElementById('hero-fighter');
+            heroDiv.classList.add('throw-anim');
+            throwProjectile(heroDiv, document.getElementById('enemy-fighter'), '🚀');
+            setTimeout(() => {
+                heroDiv.classList.remove('throw-anim');
+                const dmg = 20 + Math.floor(Math.random()*15);
+                battleState.enemyHP = Math.max(0, battleState.enemyHP - dmg);
+                updateBattleUI();
+                if(battleState.enemyHP <= 0) endBattle(true); else { disableBtns(true); setTimeout(enemyTurn, 1500); }
+            }, 500);
+        }
+
+        function enemyTurn() {
+            if(!battleState.active) return;
+            const excuse = enemyExcuses[Math.floor(Math.random()*enemyExcuses.length)];
+            logText(`${excuse}`);
+            const enemyDiv = document.getElementById('enemy-fighter');
+            enemyDiv.classList.add('throw-anim');
+            throwProjectile(enemyDiv, document.getElementById('hero-fighter'), '🪨');
+            setTimeout(() => {
+                enemyDiv.classList.remove('throw-anim');
+                const dmg = 5 + Math.floor(Math.random()*10);
+                battleState.heroHP = Math.max(0, battleState.heroHP - dmg);
+                updateBattleUI();
+                if(battleState.heroHP <= 0) endBattle(false); else { disableBtns(false); generateAttackButtons(); }
+            }, 500);
+        }
+
+        function throwProjectile(from, to, icon) {
+            const p = document.createElement('div'); p.className = 'projectile'; p.innerText = icon; p.style.display = 'block'; document.body.appendChild(p);
+            const start = from.getBoundingClientRect(); const end = to.getBoundingClientRect();
