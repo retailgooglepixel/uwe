@@ -19,7 +19,7 @@
             --google-green: #34A853;
             --bg-color: #f0f4f8;
             --text-color: #202124;
-            --pixel-body: #6996D3; /* Wird per JS geändert */
+            --pixel-body: #6996D3;
             --pixel-cam-bar: #1F1F1F;
             --current-scale: 0.6; 
         }
@@ -74,21 +74,14 @@
             overflow: hidden; perspective: 1000px;
         }
 
-        /* Pixel Character (Base) */
-        .pixel-base {
-            background-color: var(--pixel-body); /* WICHTIG: Nutzt Variable */
-            border-radius: 24px; border: 5px solid #3c4043; position: relative;
+        /* --- SHARED PIXEL DESIGN (Main & Battle) --- */
+        .pixel-look {
+            width: 130px; height: 250px; 
+            background-color: var(--pixel-body);
+            border-radius: 24px; border: 5px solid #3c4043; 
+            position: relative;
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             transition: background-color 0.5s;
-        }
-
-        /* Main Screen Pixel */
-        #pixel-pet {
-            width: 130px; height: 250px;
-            transform: scale(var(--current-scale)); 
-            z-index: 30; cursor: pointer; transform-style: preserve-3d; 
-            transition: background-color 0.5s, transform 0.5s; 
-            transform-origin: bottom center;
         }
 
         .visor {
@@ -115,6 +108,14 @@
             font-size: 28px; color: rgba(255,255,255,0.6); font-weight: bold;
         }
 
+        /* Main Screen Specifics */
+        #pixel-pet {
+            transform: scale(var(--current-scale)); 
+            z-index: 30; cursor: pointer; transform-style: preserve-3d; 
+            transition: background-color 0.5s, transform 0.5s, opacity 0.5s; 
+            transform-origin: bottom center;
+        }
+
         .heart-anim {
             position: absolute; color: #ea4335; font-size: 3rem; pointer-events: none; z-index: 100;
             animation: floatHeart 1.5s ease-out forwards;
@@ -126,11 +127,9 @@
 
         /* Age Items */
         .age-item { position: absolute; pointer-events: none; transition: all 0.5s; display: none; z-index: 20; }
-        
-        /* Positionierung für Hauptbildschirm (Großes Pixel) */
-        #pixel-pet .age-baby { top: 95px; left: 50%; transform: translateX(-50%); font-size: 2rem; }
-        #pixel-pet .age-teen { bottom: -10px; right: -40px; font-size: 4rem; transform: rotate(-10deg); z-index: 5; }
-        #pixel-pet .age-adult { bottom: 0; left: -30px; font-size: 3.5rem; z-index: 20; }
+        .age-baby { top: 95px; left: 50%; transform: translateX(-50%); font-size: 2rem; }
+        .age-teen { bottom: -10px; right: -40px; font-size: 4rem; transform: rotate(-10deg); z-index: 5; }
+        .age-adult { bottom: 0; left: -30px; font-size: 3.5rem; z-index: 20; }
 
         /* Reward Items */
         .reward-item { position: absolute; transition: all 0.5s; opacity: 0; cursor: pointer; font-size: 3rem; z-index: 20; }
@@ -178,54 +177,47 @@
         
         .fighter-wrapper { display: flex; flex-direction: column; align-items: center; width: 40%; position: relative; }
         
-        /* Fighter Styling */
-        .fighter { 
-            width: 80px; height: 150px; border-radius: 18px; position: relative; 
-            transition: transform 0.2s; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
-        }
-        
-        /* HERO FIGHTER: IDENTISCH MIT MAIN PIXEL */
+        /* BATTLE PIXEL: Inherits .pixel-look but scaled */
         #hero-fighter { 
-            background-color: var(--pixel-body); /* Folgt der Laune */
-            border: 4px solid #3c4043; 
+            transform-origin: bottom center;
+            transform: scale(0.7); /* Scale it to fit battle arena */
         }
         
         #enemy-fighter { 
+            width: 80px; height: 150px; border-radius: 18px; position: relative; 
             background: linear-gradient(135deg, #d0d0d0, #a0a0a0); 
             border: 4px solid #111; 
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
         }
 
-        /* ARME IM KAMPF */
+        /* ARMS - Correctly positioned for the 130x250 Body of hero */
         .arm {
-            width: 20px; height: 50px; position: absolute; top: 50px; border-radius: 10px;
+            width: 25px; height: 70px; position: absolute; top: 90px; border-radius: 12px;
             transform-origin: top center; transition: transform 0.2s;
         }
-        /* Arme folgen der Körperfarbe */
-        #hero-fighter .arm.left { background-color: var(--pixel-body); left: -15px; border: 2px solid #3c4043; }
-        #hero-fighter .arm.right { background-color: var(--pixel-body); right: -15px; border: 2px solid #3c4043; }
+        /* Hero Arms match pixel body */
+        #hero-fighter .arm.left { background-color: var(--pixel-body); left: -25px; border: 3px solid #3c4043; }
+        #hero-fighter .arm.right { background-color: var(--pixel-body); right: -25px; border: 3px solid #3c4043; }
         
+        /* Enemy Arms smaller as body is smaller */
+        #enemy-fighter .arm { width: 20px; height: 50px; top: 50px; }
         #enemy-fighter .arm.left { background: #d0d0d0; left: -15px; border: 2px solid #111; }
         #enemy-fighter .arm.right { background: #d0d0d0; right: -15px; border: 2px solid #111; }
 
         .throw-anim .arm.right { animation: throwArm 0.5s; }
         @keyframes throwArm { 0% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } 100% { transform: rotate(0deg); } }
 
-        /* ITEMS IM KAMPF (Angepasste Positionierung für kleineres Fighter-Div) */
-        #hero-fighter .age-baby { top: 55px; left: 50%; transform: translateX(-50%); font-size: 1.2rem; }
-        #hero-fighter .age-teen { bottom: -5px; right: -25px; font-size: 2.5rem; transform: rotate(-10deg); z-index: 20; }
-        #hero-fighter .age-adult { bottom: 0; left: -15px; font-size: 2rem; z-index: 20; }
-
-        /* Battle Faces & Mouths */
-        .battle-face { position: absolute; top: 35px; left: 0; width: 100%; text-align: center; }
-        .battle-eyes { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
-        .battle-eye { width: 6px; height: 6px; background: black; border-radius: 50%; }
+        /* Battle Faces */
+        #enemy-fighter .battle-face { position: absolute; top: 35px; left: 0; width: 100%; text-align: center; }
+        #enemy-fighter .battle-eyes { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+        #enemy-fighter .battle-eye { width: 6px; height: 6px; background: black; border-radius: 50%; }
         
-        .battle-mouth { 
+        /* Enemy Mouth */
+        #enemy-mouth { 
             width: 20px; height: 10px; background: transparent; margin: 0 auto; 
             transition: all 0.3s;
+            height: 0; border-bottom: 3px solid black; border-radius: 0; margin-top: 5px;
         }
-        #hero-mouth { border-bottom: 3px solid black; border-radius: 0 0 50% 50%; }
-        #enemy-mouth { height: 0; border-bottom: 3px solid black; border-radius: 0; margin-top: 5px; }
 
         .projectile { position: absolute; font-size: 2rem; z-index: 200; pointer-events: none; display: none; }
         .explosion { position: absolute; font-size: 3rem; z-index: 201; pointer-events: none; animation: boom 0.5s forwards; }
@@ -357,7 +349,7 @@
         <div id="toy" class="reward-item" onclick="interactToy()">🧸</div> 
 
         <!-- Pixel Character (Main) -->
-        <div id="pixel-pet" class="pixel-base" onclick="petInteraction()">
+        <div id="pixel-pet" class="pixel-look" onclick="petInteraction()">
             <div class="visor">
                 <div class="lens"></div><div class="lens"></div>
                 <div class="lens" id="tele-lens" style="display:none;"></div>
@@ -376,14 +368,17 @@
             <button class="escape-btn" onclick="endBattle(false)">Flucht</button>
             
             <div class="battle-arena">
-                <!-- HERO -->
+                <!-- HERO (Use identical structure as Main Pixel) -->
                 <div class="fighter-wrapper">
-                    <!-- Same structure, with arms and battle-specific age items -->
-                    <div id="hero-fighter" class="fighter">
-                        <div class="visor" style="transform: scale(0.6); top:15px; width:100%; left:0;"><div class="lens"></div><div class="lens"></div></div>
-                        <div class="battle-face"><div class="battle-mouth" id="hero-mouth"></div></div>
+                    <div id="hero-fighter" class="pixel-look">
+                        <div class="visor">
+                            <div class="lens"></div><div class="lens"></div>
+                        </div>
+                        <div class="mouth" id="hero-mouth"></div>
+                        <div class="g-logo">G</div>
+                        
+                        <!-- Battle Arms -->
                         <div class="arm left"></div><div class="arm right"></div>
-                        <div class="g-logo" style="bottom: 15px; font-size:20px;">G</div>
                         
                         <!-- Battle Age Items -->
                         <div id="battle-age-baby" class="age-item age-baby">🍼</div>
@@ -516,7 +511,7 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserV14');
+            const localUser = localStorage.getItem('uweStateUserV15');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -529,7 +524,7 @@
             const lname = document.getElementById('lname').value;
             const storeid = document.getElementById('storeid').value;
             user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserV14', JSON.stringify(user));
+            localStorage.setItem('uweStateUserV15', JSON.stringify(user));
             document.getElementById('auth-overlay').style.display = 'none';
             state.joinedDate = new Date().getTime();
             saveState();
@@ -537,7 +532,7 @@
             updateVisuals();
         }
         function loadState() {
-            const saved = localStorage.getItem('uweStateV14');
+            const saved = localStorage.getItem('uweStateV15');
             if (saved) state = JSON.parse(saved);
             const today = new Date().toISOString().slice(0,10);
             if (state.lastPlayedDate !== today) {
@@ -548,7 +543,7 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateV14', JSON.stringify(state));
+            localStorage.setItem('uweStateV15', JSON.stringify(state));
             if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state});
         }
 
@@ -659,216 +654,4 @@
             }
 
             if (state.happiness < 100) state.happiness += 5;
-            saveState();
-            setTimeout(() => { pet.classList.remove('spinning'); updateVisuals(); }, 1000);
-        }
-
-        function startDailyTask(cat) {
-            const q = questions[cat][Math.floor(Math.random()*questions[cat].length)];
-            document.getElementById('modal-overlay').style.display = 'flex';
-            document.getElementById('category-title').innerText = cat.toUpperCase();
-            document.getElementById('question-text').innerText = q.q;
-            const c = document.getElementById('options-container'); c.innerHTML = '';
-            document.getElementById('feedback-msg').innerText = '';
-            q.options.forEach((o, i) => {
-                const b = document.createElement('button'); b.className='option-btn'; b.innerText=o;
-                b.onclick = () => checkAnswer(i, q.a, b, cat); c.appendChild(b);
-            });
-        }
-        function checkAnswer(i, a, b, cat) {
-            const all = document.querySelectorAll('.option-btn'); all.forEach(x=>x.disabled=true);
-            const fb = document.getElementById('feedback-msg');
-            if(i===a) {
-                b.classList.add('correct'); fb.innerText="Richtig!"; fb.style.color="green";
-                state.dailyTasksCompleted[cat]=true; rewardUser(true);
-            } else {
-                b.classList.add('wrong'); fb.innerText="Falsch."; fb.style.color="red"; rewardUser(false);
-            }
-        }
-        function rewardUser(ok) {
-            if(ok) {
-                state.happiness = Math.min(100, state.happiness+20); state.xp+=30;
-                if(Object.values(state.dailyTasksCompleted).every(v=>v)) {
-                    if(!state.inventory.toy) { state.inventory.toy=true; showToast("Spielzeug freigeschaltet!"); }
-                }
-            } else state.happiness = Math.max(0, state.happiness-10);
-            saveState(); setTimeout(()=>{document.getElementById('modal-overlay').style.display='none'; updateVisuals();},1000);
-        }
-        function showToast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.opacity=1; setTimeout(()=>t.style.opacity=0,3000); }
-
-        // --- Battle ---
-        let battleState = { heroHP: 100, enemyHP: 100, active: false };
-
-        function initBattle() {
-            battleState = { heroHP: 100, enemyHP: 100, active: true };
-            updateBattleUI();
-            generateAttackButtons();
-            
-            // SHOW THE CORRECT AGE ITEM IN BATTLE
-            const ageGroup = document.documentElement.getAttribute('data-age-group') || 'baby';
-            document.getElementById('battle-age-baby').style.display = (ageGroup === 'baby') ? 'block' : 'none';
-            document.getElementById('battle-age-teen').style.display = (ageGroup === 'teen') ? 'block' : 'none';
-            document.getElementById('battle-age-adult').style.display = (ageGroup === 'adult') ? 'block' : 'none';
-
-            // UI Setup
-            document.getElementById('controls').style.display = 'none'; // Hide tasks
-            document.getElementById('battle-overlay').style.display = 'flex';
-            document.getElementById('battle-log').innerText = "Ein wildes Phone X erscheint!\n";
-        }
-
-        function logText(text) {
-            const el = document.getElementById('battle-log');
-            el.innerText += text + "\n";
-            document.getElementById('battle-log-container').scrollTop = document.getElementById('battle-log-container').scrollHeight;
-        }
-
-        function generateAttackButtons() {
-            const c = document.getElementById('battle-actions'); c.innerHTML = '';
-            battleFeatures.sort(()=>0.5-Math.random()).slice(0,4).forEach(name => {
-                const b = document.createElement('button'); b.className='attack-btn'; b.innerText=name;
-                b.onclick = () => performTurn(name); c.appendChild(b);
-            });
-        }
-
-        function updateBattleUI() {
-            document.getElementById('hero-hp').style.width = battleState.heroHP + '%';
-            document.getElementById('enemy-hp').style.width = battleState.enemyHP + '%';
-            
-            const heroMouth = document.getElementById('hero-mouth');
-            const enemyMouth = document.getElementById('enemy-mouth');
-            
-            // Hero Smiles when winning, otherwise neutral line
-            if(battleState.enemyHP < battleState.heroHP) {
-                // Smile
-                heroMouth.style.height = "10px";
-                heroMouth.style.borderRadius = "0 0 50% 50%";
-                heroMouth.style.borderBottom = "3px solid black";
-                heroMouth.style.borderTop = "none";
-            } else {
-                // Neutral
-                heroMouth.style.height = "0";
-                heroMouth.style.borderRadius = "0";
-                heroMouth.style.borderBottom = "3px solid black";
-            }
-            
-            if(battleState.enemyHP < 40) {
-                // Sad Enemy
-                enemyMouth.style.height = "10px";
-                enemyMouth.style.borderRadius = "50% 50% 0 0";
-                enemyMouth.style.borderTop = "3px solid black";
-                enemyMouth.style.borderBottom = "none";
-            } else {
-                enemyMouth.style.height = "0";
-                enemyMouth.style.borderBottom = "3px solid black";
-            }
-        }
-
-        function performTurn(feat) {
-            if(!battleState.active) return;
-            logText(`Pixel nutzt ${feat}!`);
-            
-            const heroDiv = document.getElementById('hero-fighter');
-            heroDiv.classList.add('throw-anim');
-            
-            // Projectile Animation
-            throwProjectile(heroDiv, document.getElementById('enemy-fighter'), '🚀');
-
-            setTimeout(() => {
-                heroDiv.classList.remove('throw-anim');
-                const dmg = 20 + Math.floor(Math.random()*15);
-                battleState.enemyHP = Math.max(0, battleState.enemyHP - dmg);
-                updateBattleUI();
-                
-                if(battleState.enemyHP <= 0) endBattle(true);
-                else {
-                    disableBtns(true);
-                    setTimeout(enemyTurn, 1500);
-                }
-            }, 500);
-        }
-
-        function enemyTurn() {
-            if(!battleState.active) return;
-            const excuse = enemyExcuses[Math.floor(Math.random()*enemyExcuses.length)];
-            logText(`${excuse}`);
-            
-            const enemyDiv = document.getElementById('enemy-fighter');
-            enemyDiv.classList.add('throw-anim');
-
-            // Projectile
-            throwProjectile(enemyDiv, document.getElementById('hero-fighter'), '🪨');
-
-            setTimeout(() => {
-                enemyDiv.classList.remove('throw-anim');
-                const dmg = 5 + Math.floor(Math.random()*10);
-                battleState.heroHP = Math.max(0, battleState.heroHP - dmg);
-                updateBattleUI();
-                
-                if(battleState.heroHP <= 0) endBattle(false);
-                else {
-                    disableBtns(false);
-                    generateAttackButtons();
-                }
-            }, 500);
-        }
-
-        function throwProjectile(from, to, icon) {
-            const p = document.createElement('div');
-            p.className = 'projectile';
-            p.innerText = icon;
-            p.style.display = 'block';
-            document.body.appendChild(p);
-
-            const startRect = from.getBoundingClientRect();
-            const endRect = to.getBoundingClientRect();
-
-            p.style.left = startRect.left + 30 + 'px';
-            p.style.top = startRect.top + 30 + 'px';
-
-            const deltaX = endRect.left - startRect.left;
-            const deltaY = endRect.top - startRect.top;
-
-            p.animate([
-                { transform: 'translate(0,0) scale(1)' },
-                { transform: `translate(${deltaX}px, ${deltaY}px) scale(1.5)` }
-            ], { duration: 400, easing: 'ease-in' }).onfinish = () => {
-                p.remove();
-                createExplosion(endRect.left + 20, endRect.top + 40);
-                to.classList.add('anim-hit');
-                setTimeout(()=>to.classList.remove('anim-hit'), 400);
-            };
-        }
-
-        function createExplosion(x, y) {
-            const ex = document.createElement('div');
-            ex.className = 'explosion';
-            ex.innerText = '💥';
-            ex.style.left = x + 'px';
-            ex.style.top = y + 'px';
-            document.body.appendChild(ex);
-            setTimeout(() => ex.remove(), 500);
-        }
-
-        function disableBtns(d) {
-            document.querySelectorAll('.attack-btn').forEach(b=>b.disabled=d);
-        }
-
-        function endBattle(won) {
-            battleState.active = false;
-            if(won) {
-                logText("SIEG! Phone X hat keinen Akku mehr.");
-                confetti();
-                state.happiness = 100;
-                rewardUser(true);
-            } else {
-                logText("Niederlage...");
-            }
-            setTimeout(() => {
-                document.getElementById('battle-overlay').style.display = 'none';
-                document.getElementById('controls').style.display = 'grid'; // Show tasks again
-                updateVisuals();
-            }, 2500);
-        }
-    </script>
-</body>
-</html>
+            sav
