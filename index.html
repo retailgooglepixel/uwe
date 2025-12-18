@@ -192,16 +192,13 @@
         
         .fighter-wrapper { display: flex; flex-direction: column; align-items: center; width: 40%; position: relative; }
         
+        /* Fighter Base */
         .fighter { 
             width: 80px; height: 150px; border-radius: 18px; position: relative; 
             transition: transform 0.2s; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
         }
         
-        /* HERO FIGHTER: Nutzt Skalierung, aber ist Kopie der Klasse */
-        #hero-fighter { 
-            transform-origin: bottom center;
-            transform: scale(0.7); 
-        }
+        #hero-fighter { transform-origin: bottom center; transform: scale(0.7); }
         
         #enemy-fighter { 
             width: 80px; height: 150px; border-radius: 18px; position: relative; 
@@ -301,7 +298,14 @@
         #auth-overlay { background: rgba(0,0,0,0.95); z-index: 1000; }
         .input-group { margin-bottom: 10px; text-align: left; }
         .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;}
-        .primary-btn { width: 100%; padding: 12px; background: var(--google-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        /* Button */
+        .primary-btn { 
+            width: 100%; padding: 12px; background: var(--google-blue); color: white; 
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; 
+            font-size: 1.1rem;
+        }
+        .primary-btn:active { transform: scale(0.98); }
 
         .vote-container { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
         .vote-btn { font-size: 2.2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s; user-select: none;}
@@ -312,7 +316,7 @@
 </head>
 <body>
 
-    <!-- Login OHNE Form Tag -->
+    <!-- Login -->
     <div id="auth-overlay" class="overlay" style="display: flex;">
         <div class="card">
             <h2 style="color:var(--google-blue)">UWE Anmeldung</h2>
@@ -320,8 +324,8 @@
                 <div class="input-group"><label>Vorname</label><input type="text" id="fname" required></div>
                 <div class="input-group"><label>Nachname</label><input type="text" id="lname" required></div>
                 <div class="input-group"><label>Store ID</label><input type="number" id="storeid" required></div>
-                <!-- WICHTIG: Button ruft startApp() auf -->
-                <button type="button" class="primary-btn" onclick="startApp()">Starten</button>
+                <!-- FIXED: Function name matches script -->
+                <button type="button" class="primary-btn" onclick="performLogin()">Starten</button>
             </div>
         </div>
     </div>
@@ -361,7 +365,7 @@
     </header>
 
     <div id="pet-container">
-        <!-- Feedback Button Button im Bild -->
+        <!-- Feedback Button Oben Links im Bild -->
         <button class="feedback-btn" onclick="openFeedback()">Feedback & Anleitung</button>
 
         <!-- Belohnungs Items (Interaktiv) -->
@@ -392,6 +396,7 @@
                         <div class="mouth" id="hero-mouth"></div>
                         <div class="g-logo">G</div>
                         <div class="arm left"></div><div class="arm right"></div>
+                        
                         <!-- Battle Age Items -->
                         <div id="battle-age-baby" class="age-item age-baby">🍼</div>
                         <div id="battle-age-teen" class="age-item age-teen">🛹</div>
@@ -498,7 +503,7 @@
         window.onload = function() { checkAuth(); };
 
         function checkAuth() {
-            const localUser = localStorage.getItem('uweStateUserFinalFixed');
+            const localUser = localStorage.getItem('uweStateUserV25');
             if (localUser) {
                 user = JSON.parse(localUser);
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -506,8 +511,8 @@
             }
         }
 
-        // --- LOGIN FUNCTION (Matches HTML Button) ---
-        function startApp() {
+        // --- FIXED LOGIN LOGIC: FUNCTION MATCHES ONCLICK ---
+        function performLogin() {
             const fname = document.getElementById('fname').value.trim();
             const lname = document.getElementById('lname').value.trim();
             const storeid = document.getElementById('storeid').value.trim();
@@ -518,24 +523,37 @@
             }
 
             user = { fname, lname, storeid };
-            localStorage.setItem('uweStateUserFinalFixed', JSON.stringify(user));
+            localStorage.setItem('uweStateUserV25', JSON.stringify(user));
+            
             document.getElementById('auth-overlay').style.display = 'none';
             
-            // State Restore logic
-            loadState(); 
-            if(!state.joinedDate) {
+            // Check State
+            const savedState = localStorage.getItem('uweStateV25');
+            if(savedState) {
+                state = JSON.parse(savedState);
+            } else {
                 state.joinedDate = new Date().getTime();
                 saveState();
             }
             
-            // Sync
-            if(db) db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate}, {merge:true});
+            if(db) {
+                db.collection('users').doc(`${storeid}_${lname}`).get().then(doc => {
+                    if(doc.exists && doc.data().state) {
+                        state = doc.data().state;
+                        saveState();
+                        updateVisuals();
+                    } else {
+                        db.collection('users').doc(`${storeid}_${lname}`).set({...user, joined: state.joinedDate}, {merge:true});
+                    }
+                });
+            }
+            
             updateVisuals();
             showToast("Willkommen " + fname + "!");
         }
 
         function loadState() {
-            const saved = localStorage.getItem('uweStateFinalFixed');
+            const saved = localStorage.getItem('uweStateV25');
             if (saved) state = JSON.parse(saved);
             
             const today = new Date().toISOString().slice(0,10);
@@ -548,7 +566,7 @@
             updateVisuals();
         }
         function saveState() {
-            localStorage.setItem('uweStateFinalFixed', JSON.stringify(state));
+            localStorage.setItem('uweStateV25', JSON.stringify(state));
             if(db && user) db.collection('users').doc(`${user.storeid}_${user.lname}`).update({state}).catch(e=>{});
         }
 
@@ -741,16 +759,4 @@
             logText(`${excuse}`);
             const enemyDiv = document.getElementById('enemy-fighter');
             enemyDiv.classList.add('throw-anim');
-            throwProjectile(enemyDiv, document.getElementById('hero-fighter'), '🪨');
-            setTimeout(() => {
-                enemyDiv.classList.remove('throw-anim');
-                const dmg = 5 + Math.floor(Math.random()*10);
-                battleState.heroHP = Math.max(0, battleState.heroHP - dmg);
-                updateBattleUI();
-                if(battleState.heroHP <= 0) endBattle(false); else { disableBtns(false); generateAttackButtons(); }
-            }, 500);
-        }
-
-        function throwProjectile(from, to, icon) {
-            const p = document.createElement('div'); p.className = 'projectile'; p.innerText = icon; p.style.display = 'block'; document.body.appendChild(p);
-            const start = from.getBoundingClientRect(); const end = to.getBoundingClientRect();
+            throwProjec
